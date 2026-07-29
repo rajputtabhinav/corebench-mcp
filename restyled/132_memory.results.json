@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "report_title": "20-Minute Memory Validation & Benchmark Report",
+    "subtitle": "24x Samsung 64 GB DDR5-5600 (1.5 TB) - Tyrone MDA200A2N-224",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.132",
+    "server_ip": "172.16.11.132",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T, Zen 5 Turin)",
+    "tier": "screening (rapid revalidation)",
+    "window": "11 Jun 2026 06:47-07:01 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-11",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "20-minute rapid memory revalidation of 24x Samsung 64 GB DDR5-5600 Registered ECC DIMMs (1.5 TB total) in server 172.16.11.132 (Tyrone MDA200A2N-224, dual AMD EPYC 9135 Zen 5). Core phase: a 5-minute 100% memory burn - stress-ng held 1373 GB (91% of RAM) resident across 64 workers with --vm-method all --verify, completing 1.56 billion verified operations - followed by aggregate, single-thread and NUMA bandwidth benchmarks. Total campaign 13m 48s.",
+    "All 24 DIMMs are detected and trained at their full module-rated 5600 MT/s on all 24 channels (1 DPC, 12 channels per socket). Zero ECC errors (CE=0/UE=0 on both UMC controllers), zero machine-check events, zero new BMC SEL entries and zero swap/OOM activity during the burn. Cores sustained full boost throughout the load - peak 4346 MHz against the 4300 MHz rated maximum.",
+    "Aggregate stream bandwidth measured 581 GB/s - 31% above the half-populated sibling .217 (443 GB/s, same dual EPYC 9135 platform) - because full 24-of-24 channel population more than offsets the lower 5600 MT/s module clock. Single-thread memcpy 23.8 GB/s; NUMA-remote penalty 1.60x (family norm). The 1.5 TB configuration is revalidated for production memory-bound workloads."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["DIMM detection & speed", "24/24 DIMMs, full 5600 MT/s", "BIOS/kernel agree; module-rated speed, no downclock", "PASS"],
+      ["Stability (5-min 100% burn)", "0 errors; 1373 GB resident (91%)", "stress-ng all-patterns + verify; 1.56G ops; 0 OOM/swap", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE (2 UMC controllers)", "0 MCE; BMC SEL 279 -> 279 (0 new entries)", "PASS"],
+      ["CPU frequency", "4346 MHz peak under load", "At/above rated 4.3 GHz boost; no throttle in window", "PASS"],
+      ["Memory bandwidth", "581 GB/s aggregate stream", "+31% vs half-populated sibling .217; NUMA remote 1.60x", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDA200A2N-224", "hostname": "172.16.11.132"},
+    "cpu": {"model": "2x AMD EPYC 9135 (Zen 5 'Turin')", "sockets": 2, "cores_per_socket": 16, "threads": 64,
+            "base_ghz": 3.65, "boost_ghz": 4.3, "numa_nodes": 2, "isa": "AVX-512 (Zen 5); L3 128 MiB (8x 16 MiB CCD)"},
+    "memory": {"total": "1.5 TB (24x 64 GB)", "type": "DDR5 RDIMM ECC (Samsung M321R8GA0PB0-CWMCJ)",
+               "dimms_populated": "24 of 24 (1 DPC, all 12 channels per socket)",
+               "configured_speed": "5600 MT/s", "rated_speed": "5600 MT/s",
+               "speed_status": "full module-rated speed (platform supports 6000 MT/s with faster DIMMs)",
+               "module_detail": "2R, 80-bit total width (64-bit data + 16-bit ECC), Synchronous Registered (Buffered)"},
+    "dimms": [
+      {"slot": "P0 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08E55", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08E6A", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479C", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479A", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08E04", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04751", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09063", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0905F", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0906D", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03CB5", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08E08", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08EB8", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03DAA", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E048B8", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08E06", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09060", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09070", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08DFA", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04798", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E08D23", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04859", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04729", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03CB1", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04569", "rank_width": "2R / 80-bit"}
+    ],
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 581.1, "dimm_speed_mts": 5600, "rated_mts": 5600}
+  },
+  "spec_rows": [
+    {"metric": "DIMM speed (% of rated 5600)", "measured": 5600, "rated": 5600, "unit": "MT/s"},
+    {"metric": "CPU boost under load (% of rated 4300)", "measured": 4346, "rated": 4300, "unit": "MHz"},
+    {"metric": "RAM residency during burn (% of 1511 GB)", "measured": 1373, "rated": 1511, "unit": "GB"},
+    {"metric": "Aggregate stream vs sibling .217 (443 GB/s)", "measured": 581.1, "rated": 443.3, "unit": "GB/s"}
+  ],
+  "comparison": {
+    "servers": ["This .132 (24x 64 GB @ 5600)", "Sibling .217 (12x 96 GB @ 6000)"],
+    "metrics": [
+      {"name": "DIMM configured (MT/s)", "a": 5600, "b": 6000, "fmt": "{:.0f}"},
+      {"name": "Aggregate stream (GB/s)", "a": 581.1, "b": 443.3, "fmt": "{:.1f}"},
+      {"name": "1-thread memcpy (GB/s)", "a": 23.8, "b": 20.77, "fmt": "{:.2f}"},
+      {"name": "NUMA-remote ratio (x)", "a": 1.6, "b": 1.67, "fmt": "{:.2f}"}
+    ],
+    "caption": "Same dual EPYC 9135 platform family - this .132 populates all 24 channels with 5600 MT/s modules; sibling .217 runs 12 DIMMs at 6000 MT/s.",
+    "notes": "Full channel population wins: despite a 7% lower DIMM clock (5600 vs 6000 MT/s), 24-of-24 channels deliver ~31% more aggregate stream bandwidth than the half-populated sibling (581 vs 443 GB/s). Zen 5 single-thread memcpy is strong on both (23.8 vs 20.8 GB/s) and the 2-socket NUMA-remote penalty is essentially identical (1.60x vs 1.67x) - the Infinity Fabric behaves the same across the family."
+  },
+  "sel_status": "BMC SEL: 0 new entries during the campaign (279 before and after; last entry 06:21 UTC, pre-test boot).",
+  "dmesg_status": "0 machine-check events during the 14-minute window (kernel MCE keyword count unchanged at the single benign boot line). AMD EDAC enumerated 2 memory controllers; CE=0 / UE=0 before and after the burn. Core clocks sampled every 20 s under load: 3974-4346 MHz (rated boost 4300) - no thermal or firmware throttle. Swap untouched; no OOM-killer activity.",
+  "findings": [
+    "All 24 Samsung 64 GB DDR5-5600 modules are electrically healthy under maximum pressure: the 5-minute 100% burn held 1373 GB (91% of 1511 GB) resident for the entire window while stress-ng's full pattern sweep with --verify completed 1,562,412,338 operations - zero verification failures, zero OOM kills, swap untouched.",
+    "ECC and platform logs are spotless: both AMD UMC EDAC controllers read CE=0 / UE=0 before and after; the machine-check count is unchanged; BMC SEL stayed at 279 entries (last entry 06:21 UTC, from the pre-test boot). The box had been freshly rebooted ~24 minutes before the campaign.",
+    "BIOS trains every module at the full module rating of 5600 MT/s on all 24 channels (1 DPC). The EPYC 9005 platform itself supports 6000 MT/s at 1 DPC, so the only headroom left is module choice, not training health.",
+    "Per-module identity recorded for traceability: all 24 modules are identical Samsung M321R8GA0PB0-CWMCJ, dual-rank, 80-bit total width (64-bit data + 16-bit ECC), Registered (Buffered), serials 80CE04254642E0xxxx (one production lot) - full slot-by-slot map with serial numbers in the Hardware Inventory section.",
+    "Bandwidth is the best in the fleet family: 581 GB/s aggregate stream (64 instances, 256 MB DRAM-bound working set), +31% over the half-populated sibling .217 (443 GB/s) despite the slower DIMM clock. DRAM-bound sysbench (1 GiB private blocks per thread) adds 355 GB/s read / 206 GB/s write aggregate; mbw single-thread memcpy is 23.8 GB/s.",
+    "NUMA topology is healthy: node0->node0 memcpy 22.5 GiB/s vs node0->node1 14.1 GiB/s - a 1.60x remote penalty, matching the .217 reference (1.67x).",
+    "Methodology note: stress-ng's default cache detection on EPYC reads one CCD's 16 MiB L3, which makes the default --stream run cache-resident (it reported an inflated 1.39 TB/s). The corrected run pins --stream-l3-size 256M; sysbench's default shared-buffer write similarly understates (11.8 GB/s) and was rerun with private 1 GiB blocks per thread."
+  ],
+  "recommendations": [
+    "Modules cleared for production - no DIMM action required; the 1.5 TB / 24-channel configuration is revalidated for memory-bound workloads (in-memory DBs, virtualization, HPC pre/post-processing).",
+    "Optional +7% peak bandwidth: 6000 MT/s-rated modules would let this 1 DPC platform train higher; not required - full population already out-delivers the faster-clocked half-populated sibling.",
+    "Install rasdaemon and enable BIOS patrol scrub for continuous per-DIMM error history between validation campaigns.",
+    "For future quick campaigns on EPYC, pin stress-ng --stream-l3-size 256M and use sysbench with private 1 GiB blocks - the tool defaults measure cache, not DRAM, on this CPU family.",
+    "When the box can be spared, run the full 3-hour qualification tier (as on .41/.217) to add the memtester near-full-residency burn and an extended soak."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["24x 64 GB DDR5-5600 (1.5 TB)", "Validated: 0 ECC, 0 MCE, 0 new SEL; 91% residency burn; full 5600 MT/s", "PASS"],
+      ["Stability (5-min 100% load)", "1.56G verified ops, 0 failures, 0 OOM/swap; clocks held 3.97-4.35 GHz", "PASS"],
+      ["Memory bandwidth", "581 GB/s aggregate (+31% vs half-populated sibling); NUMA remote 1.60x", "PASS"],
+      ["Module clock headroom", "5600 MT/s parts on a 6000 MT/s-capable 1 DPC platform", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --vm-bytes 1464169453649 (total, split across workers; --vm-keep) --vm-method all --verify --timeout 300s -> 1373 GB resident (91%) for the full window",
+    "bandwidth": "stress-ng --stream 64 --stream-l3-size 256M (30 s) -> 581.1 GB/s; sysbench memory 1 GiB blocks/thread, scope=local, 64T: read 355 / write 206 GB/s; mbw -n 3 1024 (1T) -> 23.8 GB/s",
+    "numa": "numactl --cpunodebind=0 --membind={0,1} mbw -n 2 2048 -> 22.5 vs 14.1 GiB/s memcpy = 1.60x remote penalty",
+    "edac": "AMD EDAC (2 UMC controllers); /sys/devices/system/edac ce_count + ue_count diffed pre/post; dmesg + ipmitool sel info diffed",
+    "cpu_freq": "/proc/cpuinfo MHz sampled every 20 s during the burn (peak 4345.8 MHz); turbostat post-check (Bzy_MHz 2338, 182 W package, idle recovery)",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic",
+    "campaign_window": "11 Jun 2026 06:47-07:01 UTC (13m 48s)",
+    "note": "Rapid 20-minute revalidation; tooling identical to the 3-hour .41/.217 qualification campaigns minus the HPL and memtester phases."
+  }
+}

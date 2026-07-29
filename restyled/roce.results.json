@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "report_title": "100 GbE / RoCE v2 NIC Benchmark & Validation Report",
+    "subtitle": "Broadcom NetXtreme-E BCM57508 & BCM57504 - back-to-back + through-switch",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "srv218 <-> srv148",
+    "server_ip": "10.10.10.0/24 (back-to-back)",
+    "platform": "srv218 Tyrone Camarero (2x Xeon Gold 6338) <-> srv148 Tyrone MDA200A2N-224 (2x EPYC 9135)",
+    "tier": "qualification",
+    "window": "back-to-back + through-switch (09 Jun 2026)",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-09",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "Validation of two Broadcom NetXtreme-E 100 G Ethernet adapters (BCM57508 / BCM57504) in Netweb / Tyrone Systems servers, connected back-to-back over a single 100 G DAC cable, then re-validated through a production-class Accton AS4630-54TE / SONiC switch. All measured numbers match or exceed the published Broadcom Thor envelope, with full line rate on RoCE v2 bandwidth and latency in the expected microsecond band.",
+    "The two NICs operate at full 100 G line rate for RoCE v2 send / write / read (98.18 Gb/s), sustain 194.99 Gb/s full-duplex, with no FCS / PCS / pause errors. RoCE uses ~9.2x less host CPU than TCP on the receive side (kernel bypass: %softirq drops to 0%).",
+    "Through the switch (default lossy, no PFC), RoCE held full line rate while TCP collapsed 94 -> 68 Gb/s from buffer overruns - and RoCE drew 27-49 W less per server than TCP at sustained 100 G. RoCE is robust through any reasonable fabric; TCP needs PFC/ECN tuning to stay healthy at 100 G."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["RoCE v2 bandwidth", "98.18 Gb/s send/write, 98.17 read", "Top of Broadcom Thor envelope; line rate", "PASS"],
+      ["Full-duplex aggregate", "194.99 Gb/s", "190-196 typical; full line rate", "PASS"],
+      ["RoCE latency (2 B msg)", "write 2.41 / send 2.59 / read 4.39 us", "Within published band", "PASS"],
+      ["TCP sustained (back-to-back)", "94.04 Gb/s, 0 retransmits", "Top of the Linux kernel TCP envelope", "PASS"],
+      ["Link & PCIe health", "0 FCS/PCS/pause errors; AER clean", "ibstat ACTIVE, Rate 100 both hosts", "PASS"],
+      ["CPU efficiency (RoCE vs TCP)", "9.2x less host CPU (RX)", "RoCE ~1 core vs TCP ~6 cores at 100G", "PASS"],
+      ["Through-switch (SONiC)", "RoCE 98.18 Gb/s; TCP 94->68", "TCP collapses without PFC (4.0M retransmits); RoCE robust", "PASS"],
+      ["Power efficiency", "RoCE saves 27-49 W/server vs TCP", "~76 W per 100G link pair; ~1.5 kW/rack at 32 nodes", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "srv218 (Camarero) <-> srv148 (MDA200A2N-224)", "hostname": "srv218 / srv148"},
+    "cpu": {"model": "srv218: 2x Xeon Gold 6338 (64C/128T)  |  srv148: 2x EPYC 9135 (32C/64T)", "sockets": 2},
+    "memory": {"total": "srv218: 128 GB DDR4-3200  |  srv148: 512 GB DDR5-5600", "type": "DDR4 / DDR5"},
+    "bios": {"version": "srv218 AMI L1.14B (2025-09-24)  |  srv148 AMI ES312AMS.205T8 (2026-03-26)"},
+    "kernel": {"distro": "Ubuntu 22.04.5 LTS", "kernel": "6.8.0-111-generic"},
+    "network": [
+      {"iface": "srv218 100G", "model": "Broadcom BCM57508 (200G card)", "speed": "100 Gb/s (PCIe Gen4 x16)", "driver": "bnxt_en/bnxt_re 226.0.145.1"},
+      {"iface": "srv148 100G", "model": "Broadcom BCM57504 (100G card)", "speed": "100 Gb/s (PCIe Gen4 x16)", "driver": "bnxt_en/bnxt_re 226.0.145.1"},
+      {"iface": "switch", "model": "Accton AS4630-54TE (SONiC 4.5.1)", "speed": "100GBASE-CR, MTU 9100", "driver": "no PFC (default lossy)"}
+    ]
+  },
+  "benchmarks": {
+    "network": {
+      "tcp_rx_gbps": 94.04, "tcp_tx_gbps": 94.34, "tcp_multistream_gbps": 94.04,
+      "roce_ib_write_bw_gbps": 98.18, "roce_ib_write_lat_p99_9_us": 8.56,
+      "pps_mpps": 5.0, "mtu": 9000,
+      "pfc": "off (back-to-back & test switch); enable for multi-hop TCP", "ecn": "off (test)",
+      "rdma_link": "100 Gb/s, ACTIVE (ibstat Rate 100)", "peer": "srv148",
+      "fabric": "back-to-back 100G DAC + Accton AS4630/SONiC switch"
+    }
+  },
+  "spec_rows": [
+    {"metric": "RoCE ib_write_bw (% of 100G)", "measured": 98.18, "rated": 100, "unit": "Gb/s"},
+    {"metric": "RoCE ib_read_bw (% of 100G)", "measured": 98.17, "rated": 100, "unit": "Gb/s"},
+    {"metric": "Full-duplex aggregate (% of 200G)", "measured": 194.99, "rated": 200, "unit": "Gb/s"},
+    {"metric": "TCP sustained, back-to-back (% of 100G)", "measured": 94.04, "rated": 100, "unit": "Gb/s"},
+    {"metric": "TCP through switch, no PFC (% of 100G)", "measured": 68.62, "rated": 100, "unit": "Gb/s"}
+  ],
+  "comparison": {
+    "servers": ["Back-to-back", "Through switch (SONiC, no PFC)"],
+    "metrics": [
+      {"name": "TCP sustained (Gb/s)", "a": 94.04, "b": 68.62, "fmt": "{:.2f}"},
+      {"name": "RoCE ib_write_bw (Gb/s)", "a": 98.18, "b": 98.18, "fmt": "{:.2f}"},
+      {"name": "Bidir aggregate (Gb/s)", "a": 194.99, "b": 194.88, "fmt": "{:.1f}"},
+      {"name": "ib_write_lat min (us)", "a": 2.41, "b": 3.58, "fmt": "{:.2f}"},
+      {"name": "ib_read_lat min (us)", "a": 4.39, "b": 6.75, "fmt": "{:.2f}"}
+    ],
+    "caption": "Same NICs re-cabled through an Accton AS4630-54TE / SONiC switch (default lossy, no PFC).",
+    "notes": "RoCE holds full line rate (98.18 Gb/s, 0 discards) through the switch; TCP collapses 94 -> 68 Gb/s without PFC (4.0M retransmits, 5.2M RX discards on CoS4). The switch adds ~1.2 us/hop for send/write and ~2.4 us round-trip for read (RDMA Read = request + response)."
+  },
+  "health": {
+    "header": ["Indicator", "srv218", "srv148", "Verdict"],
+    "rows": [
+      ["FCS errors (TX+RX)", "0", "0", "PASS"],
+      ["PCS symbol errors", "0", "0", "PASS"],
+      ["RX / TX pause frames", "0 / 0", "0 / 0", "PASS"],
+      ["RoCE port (ibstat)", "ACTIVE, Rate 100", "ACTIVE, Rate 100", "PASS"],
+      ["PCIe AER", "clean", "clean", "PASS"]
+    ]
+  },
+  "dmesg_status": "Back-to-back: 0 FCS / PCS / RX-align errors and 0 pause frames on both NICs; PCIe AER clean; RoCE ports ACTIVE at Rate 100. Through-switch TCP soak (no PFC): 4,021,988 retransmits and 5,215,543 RX discards (CoS4) with 0 pause frames - confirming switch buffer overrun without PFC, not a NIC fault (0 FCS/PCS/FEC errors, 0 link-downs). RoCE through the switch: 0 discards, 0 errors, full line rate.",
+  "findings": [
+    "Both Broadcom Thor NICs operate at full 100 G line rate for RoCE v2 send/write/read (98.18 Gb/s), sustain 194.99 Gb/s full-duplex, with RDMA write latency 2.41 us - at the top of Broadcom's published envelope; ib_read_bw (98.17 Gb/s) exceeds the typical Thor 94-97 Gb/s window.",
+    "RoCE uses ~9.2x less host CPU than TCP on the receive side (~1 core vs ~6 cores at 100 G); %softirq drops to 0% under RDMA - true kernel bypass. ~50+ CPU cores/node are recoverable across ten 100 G links by choosing RoCE.",
+    "Through a production switch (Accton AS4630-54TE / SONiC, default lossy / no PFC) RoCE held full line rate (98.18 Gb/s, zero discards) while TCP collapsed 94 -> 68 Gb/s: 4.0M retransmits and 5.2M RX discards (CoS4) with no PFC pause frames to throttle the switch.",
+    "Power: RoCE saves ~27-49 W per server vs TCP at sustained 100 G through the switch (~76 W per 100G link pair; ~1.5 kW continuous for a 32-node rack), measured via IPMI DCMI + turbostat. RoCE adds only 7-12 W above idle; TCP adds 39-55 W.",
+    "The switch adds ~1.2 us each way (send/write) and ~2.4 us round-trip (read); CPU efficiency holds - RoCE still uses 7.7x less host CPU than TCP through the switch. Link health is perfect throughout (0 FCS/PCS/pause errors, AER clean, ports ACTIVE Rate 100)."
+  ],
+  "recommendations": [
+    "Enable lossless RoCE (PFC + ECN + DCQCN) on shared switches before deploying TCP at 100 G - RoCE is robust without it, but TCP collapses (94 -> 68 Gb/s) on a default-lossy switch.",
+    "Persist the tuning: L2 MTU 9000 + 10.10.10.x IP via netplan/nmcli; set hostnames with hostnamectl; persist NIC queue/ring settings via if-up.d or udev.",
+    "Prefer RoCE for storage / AI / latency-sensitive traffic: full line rate through any reasonable fabric, ~9x less CPU, and measurable power/TCO savings vs TCP on the same hardware.",
+    "Populate more DIMM channels (srv218: 2 of 16; srv148: 8 of 24) - more memory bandwidth helps DMA-heavy 100 G workloads.",
+    "For MPI / OSU benchmarks, rebuild Open MPI against UCX >= 1.15 to fix the RoCE QP setup blocker (the only test not completed in this campaign)."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["RoCE v2 bandwidth & latency", "98.18 Gb/s send/write/read; 2.41 us write latency; top of envelope", "PASS"],
+      ["Full-duplex & TCP (back-to-back)", "194.99 Gb/s aggregate; 94.04 Gb/s TCP with 0 retransmits", "PASS"],
+      ["Through-switch (SONiC, no PFC)", "RoCE full line rate; TCP needs PFC/ECN (collapsed to 68 Gb/s)", "PASS"],
+      ["Power / TCO", "RoCE saves ~76 W per 100G link pair vs TCP (~1.5 kW/rack at 32 nodes)", "PASS"],
+      ["CPU efficiency", "RoCE 9.2x (b2b) / 7.7x (switch) less host CPU than TCP", "PASS"]
+    ]
+  },
+  "reproducibility": {
+    "perftest": "ib_send/write/read_bw + _lat", "iperf3": "TCP/UDP", "sockperf": "PPS + ping-pong",
+    "diagnostics": "ethtool -m/-S, lspci -vv (AER), rdma link, ibstat; power via ipmitool dcmi + turbostat PkgWatt",
+    "switch": "Accton AS4630-54TE, SONiC 4.5.1-Enterprise (100GBASE-CR, MTU 9100, no PFC)",
+    "driver_fw": "bnxt_en / bnxt_re 226.0.145.1",
+    "distro": "Ubuntu 22.04.5 LTS", "kernel": "6.8.0-111-generic",
+    "tuning": "MTU 9000, tcp rmem/wmem 256 MB, NIC rings 2047, combined queues 32, CPU governor performance, NUMA-pinned, irqbalance off",
+    "campaign_window": "back-to-back + through-switch, 09 Jun 2026",
+    "note": "Reconstructed from the validated source report (Final v2, incl. Section 11 through-switch + power) into the CoreBench results.json contract."
+  }
+}

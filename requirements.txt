@@ -1,0 +1,10 @@
+# CoreBench MCP -- runtime dependencies
+mcp>=1.2
+reportlab>=4.0
+matplotlib>=3.7
+pillow>=10.0
+
+# Dev / test (optional):
+#   pytest>=8.0      -- unit + smoke tests
+#   pymupdf>=1.24    -- rasterize a rendered PDF to PNG for eyeballing
+pytest>=8.0

@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "report_title": "DDR5 Memory Validation Report",
+    "subtitle": "Server 172.16.13.19 - Two Campaigns (256 GB + 128 GB)",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.13.19",
+    "server_ip": "172.16.13.19",
+    "platform": "Tyrone MDI300 / 2x Intel Xeon 6730P (64C/128T, Granite Rapids)",
+    "tier": "qualification",
+    "window": "28 May 2026 (A 08:25-09:50, B 10:13-10:58 UTC)",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-05-28",
+    "status": "PASS (MEMORY), ACTION (PLATFORM - CPU 500 MHz)"
+  },
+  "executive_summary": [
+    "Two memory configurations were validated back-to-back on the same server 172.16.13.19 (Tyrone MDI300, dual Intel Xeon 6730P Granite Rapids): Campaign A - 8x Samsung 256 GB DDR5-6400 (2 TB); Campaign B - 8x Samsung 128 GB DDR5-6400 (1 TB) after a physical swap.",
+    "The memory passes in both campaigns: all 8 modules detected by BMC, BIOS and kernel, trained at full rated 6400 MT/s, with zero ECC errors across a 30-minute pattern-verify pass and a 15-minute >=95%-RAM-resident burn each.",
+    "Testing also identified a platform firmware fault: every CPU core is locked at 500 MHz in BOTH campaigns. The lock survived the reboot and DIMM swap - confirming it is independent of the memory. It must be fixed before this server is benchmarked or deployed; bandwidth figures here are throttled ~10x and are not representative."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["Memory (both campaigns)", "0 ECC, 8/8 DIMMs, full 6400 MT/s", "30-min verify + 15-min >95% burn, 0 failures", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE on all 16 controllers", "0 MCE; mlock succeeded on all 64 workers", "PASS"],
+      ["Detection chain", "BMC + BIOS + kernel agree: 8 DIMMs", "Multi-bit ECC active; correct SPD/speed", "PASS"],
+      ["CPU frequency", "Locked at 500 MHz (all 64 cores)", "vs 2500 base / 3800 turbo; firmware fault, not thermal/power", "ACTION"],
+      ["Bandwidth (consequence)", "~23 GB/s aggregate (throttled ~10x)", "Not representative until the CPU lock is cleared", "LIMITED"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDI300", "hostname": "172.16.13.19"},
+    "cpu": {"model": "2x Intel Xeon 6730P (Granite Rapids)", "sockets": 2, "cores_per_socket": 32, "threads": 128,
+            "base_ghz": 2.5, "boost_ghz": 3.8, "numa_nodes": 2, "isa": "AVX-512, AMX (L3 576 MiB)"},
+    "memory": {"total": "2 TB (A) / 1 TB (B)", "type": "DDR5 (Samsung)",
+               "dimms_populated": "8 of 32 (4-of-8 channels: P0/P1 A,B,E,F)",
+               "configured_speed": "6400 MT/s", "rated_speed": "6400 MT/s",
+               "speed_status": "full rated speed (not clamped)"},
+    "bios": {"version": "AMI ES418INW.M06", "date": "2026-04-16"},
+    "bmc": {"firmware": "1.11"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-111-generic"}
+  },
+  "spec_rows": [
+    {"metric": "DIMM speed (% of rated 6400)", "measured": 6400, "rated": 6400, "unit": "MT/s"},
+    {"metric": "STREAM aggregate (% of expected @3.8GHz)", "measured": 23, "rated": 320, "unit": "GB/s"}
+  ],
+  "comparison": {
+    "servers": ["Expected @3.8 GHz", "Measured @500 MHz"],
+    "metrics": [
+      {"name": "STREAM aggregate (GB/s)", "a": 320, "b": 23, "fmt": "{:.0f}"},
+      {"name": "memcpy NUMA-local (GB/s)", "a": 22, "b": 2.31, "fmt": "{:.2f}"},
+      {"name": "memcpy NUMA-remote (GB/s)", "a": 13.5, "b": 1.40, "fmt": "{:.2f}"},
+      {"name": "sysbench 1M write (GB/s)", "a": 17.5, "b": 2.42, "fmt": "{:.2f}"}
+    ],
+    "caption": "Measured bandwidth vs expected at rated frequency.",
+    "notes": "Bandwidth is throttled ~10x by the 500 MHz CPU lock and is NOT representative - measured is only ~7-14% of expected. Both campaigns produce nearly identical throttled numbers, further proof the bottleneck is the CPU lock, not the DIMMs. Re-measure after the lock is cleared."
+  },
+  "sel_status": "BMC SEL: 0 memory-related events. IPMI sees exactly 8 populated DIMM thermal sensors (28-32 C), all 'ok'.",
+  "dmesg_status": "0 MCE; EDAC enumerated all 16 controllers, CE=0 / UE=0 in both campaigns. turbostat shows all 64 cores pinned at 500 MHz despite the OS requesting 3.8 GHz (HWP/PERF_CTL ratio 0x26); no thermal or power limit active (29-35 C, 88-139 W vs 250 W cap, CORE_PERF_LIMIT_REASONS=0). dmesg: intel_uncore_frequency_tpmi 'Unsupported minor version' (kernel 6.8 PM support incomplete for Granite Rapids).",
+  "findings": [
+    "Both DIMM sets (8x 256 GB + 8x 128 GB Samsung DDR5-6400) are healthy and fully validated: detected by BMC/BIOS/kernel, trained at full rated 6400 MT/s, zero ECC errors, zero MCE, mlock on all 64 workers.",
+    "PLATFORM FAULT: every CPU core is locked at 500 MHz (one-fifth of the 2500 MHz base) in both campaigns. The lock persisted across reboot and DIMM swap - it is a firmware-level condition independent of the memory.",
+    "The OS requests 3.8 GHz through every mechanism and the silicon reports it is capable, with no thermal or power limit active - pointing to a BIOS power-profile / config-TDP setting or early-Granite-Rapids pcode/microcode immaturity.",
+    "Bandwidth is throttled ~10x by the CPU lock (~23 GB/s aggregate vs ~300+ expected) - recorded for completeness only, not representative of the platform."
+  ],
+  "recommendations": [
+    "Memory: cleared for use - both the 256 GB and 128 GB Samsung DDR5-6400 sets pass all correctness and detection checks. No DIMM action required.",
+    "Resolve the 500 MHz CPU lock before benchmarking/deployment (in order of likelihood): (a) BIOS power profile -> set Performance / max TDP; (b) update BIOS + Intel microcode (Granite Rapids pcode); (c) check VR / power-delivery telemetry; (d) try a newer kernel (6.11+/HWE) for full PM support.",
+    "Re-run the bandwidth suite once cores reach rated frequency - expect ~300+ GB/s aggregate STREAM for this 4-of-8-channel DDR5-6400 layout."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["8x 256 GB + 8x 128 GB DDR5-6400", "Memory validated: 0 ECC, full 6400 MT/s, >95% burn (both campaigns)", "PASS"],
+      ["CPU frequency lock (500 MHz)", "Firmware fault in both campaigns; fix BIOS power profile / microcode before deployment", "ACTION"],
+      ["Performance benchmarking", "Blocked until the CPU lock is cleared; bandwidth not representative", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --verify (30 min)",
+    "memtester": "memtester (64 workers, 15 min)",
+    "bandwidth": "mbw memcpy; stress-ng --stream; sysbench memory",
+    "cpu_freq": "turbostat; rdmsr HWP_REQUEST/PERF_CTL/HWP_CAPABILITIES",
+    "edac": "16 memory controllers, multi-bit ECC",
+    "bios": "AMI ES418INW.M06 (2026-04-16)", "bmc_firmware": "1.11",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-111-generic",
+    "campaign_window": "28 May 2026 (A 08:25-09:50, B 10:13-10:58 UTC)",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

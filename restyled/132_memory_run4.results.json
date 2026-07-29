@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "report_title": "20-Minute Memory Validation & Benchmark Report",
+    "subtitle": "Fourth kit: 20x Samsung 64 GB DDR5-5600 (1.28 TB, symmetric 10+10 channels) - Tyrone MDA200A2N-224",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.132",
+    "server_ip": "172.16.11.132",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T, Zen 5 Turin)",
+    "tier": "screening (post-install revalidation)",
+    "window": "11 Jun 2026 10:26-10:34 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-11",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "Post-install revalidation of the fourth DIMM configuration fitted to server 172.16.11.132 today (Tyrone MDA200A2N-224, dual AMD EPYC 9135): 20x Samsung 64 GB DDR5-5600 in a deliberate SYMMETRIC reduced population - channels E and K left vacant on both sockets (10+10), 1.28 TB total. Clean POST: all 20 modules train at full 5600 MT/s, ACPI BERT is empty and the BMC logged no memory events - the 4 vacant positions are by design, not failures (unlike the second kit's 2 mapped-out modules).",
+    "The 5-minute 100% burn held 1156 GB (92% of RAM) resident across 64 verify-mode workers and completed 1.40 billion verified operations with zero failures, zero OOM/swap; EDAC CE=0/UE=0, zero machine-checks, zero new SEL entries during the campaign; cores held full boost (peak 4343 MHz vs 4300 rated).",
+    "Bandwidth scales LINEARLY with channel count: 483.7 GB/s aggregate stream = 85% of the 24-DIMM figure (567.5 GB/s) on 83% of the channels - i.e. 102% of the linear 10-of-12 prediction; sysbench read/write land at 86%/84%. This is the controlled counter-example to this morning's asymmetric 22-DIMM kit, which kept 92% of the channels but lost 40% of the bandwidth. Symmetric de-population preserves the EPYC interleave; the configuration is qualified for production at its design point."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["DIMM detection & training", "20/20 installed trained, full 5600 MT/s", "Clean POST; 4 slots vacant by design (CH E+K, both sockets)", "PASS"],
+      ["Stability (5-min 100% burn)", "0 errors; 1156 GB resident (92%)", "stress-ng all patterns + verify; 1.40G ops; 0 OOM/swap", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE; SEL 355 -> 355", "0 MCE during campaign; EDAC clean on both controllers", "PASS"],
+      ["CPU frequency", "4343 MHz peak under load", "At rated 4.3 GHz boost; no throttle in window", "PASS"],
+      ["Memory bandwidth", "483.7 GB/s aggregate stream", "102% of linear 10/12-channel scaling - interleave intact", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDA200A2N-224", "hostname": "172.16.11.132"},
+    "cpu": {"model": "2x AMD EPYC 9135 (Zen 5 'Turin')", "sockets": 2, "cores_per_socket": 16, "threads": 64,
+            "base_ghz": 3.65, "boost_ghz": 4.3, "numa_nodes": 2, "isa": "AVX-512 (Zen 5); L3 128 MiB (8x 16 MiB CCD)"},
+    "memory": {"total": "1.28 TB (20x 64 GB)", "type": "DDR5 RDIMM ECC (Samsung M321R8GA0PB0-CWMCJ)",
+               "dimms_populated": "20 of 24 - symmetric 10+10 (channels E and K vacant on both sockets, by design)",
+               "configured_speed": "5600 MT/s", "rated_speed": "5600 MT/s",
+               "speed_status": "full module-rated speed (platform supports 6000 MT/s with faster DIMMs)",
+               "module_detail": "2R, 80-bit total width (64-bit data + 16-bit ECC), Synchronous Registered (Buffered); 19x lot 80CE04254742Exxxxx + 1x lot 80CE04254642E0xxxx (P1 CH-J)"},
+    "dimms": [
+      {"slot": "P0 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFD13", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFD11", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFA0A", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1DB", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-E", "size": "-", "speed": "-", "vendor": "-", "part": "Not populated (by design)", "serial": "-", "rank_width": "-"},
+      {"slot": "P0 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1D9", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF534", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEEEF5", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF58E", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFA37", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-K", "size": "-", "speed": "-", "vendor": "-", "part": "Not populated (by design)", "serial": "-", "rank_width": "-"},
+      {"slot": "P0 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFF82", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1AF", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF58B", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF21A", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFD18", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-E", "size": "-", "speed": "-", "vendor": "-", "part": "Not populated (by design)", "serial": "-", "rank_width": "-"},
+      {"slot": "P1 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF0151", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF00EF", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1E0", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF3A8", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03E0C", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-K", "size": "-", "speed": "-", "vendor": "-", "part": "Not populated (by design)", "serial": "-", "rank_width": "-"},
+      {"slot": "P1 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEFA3E", "rank_width": "2R / 80-bit"}
+    ],
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 483.7, "dimm_speed_mts": 5600, "rated_mts": 5600}
+  },
+  "spec_rows": [
+    {"metric": "DIMMs trained (% of 20 installed)", "measured": 20, "rated": 20, "unit": "DIMMs"},
+    {"metric": "DIMM speed (% of rated 5600)", "measured": 5600, "rated": 5600, "unit": "MT/s"},
+    {"metric": "CPU boost under load (% of rated 4300)", "measured": 4343, "rated": 4300, "unit": "MHz"},
+    {"metric": "RAM residency during burn (% of 1259 GB)", "measured": 1156, "rated": 1259, "unit": "GB"},
+    {"metric": "Aggregate stream (% of linear 10/12-ch scaling, 473 GB/s)", "measured": 483.7, "rated": 473, "unit": "GB/s"}
+  ],
+  "comparison": {
+    "servers": ["Run 4 - this kit (20x 64 GB, 10+10 ch)", "Run 3 - prior kit (24x 64 GB, 12+12 ch)"],
+    "metrics": [
+      {"name": "Active DIMMs", "a": 20, "b": 24, "fmt": "{:.0f}"},
+      {"name": "Aggregate stream (GB/s)", "a": 483.7, "b": 567.5, "fmt": "{:.1f}"},
+      {"name": "sysbench read 64T (GB/s)", "a": 311.1, "b": 360.8, "fmt": "{:.1f}"},
+      {"name": "sysbench write 64T (GB/s)", "a": 171.7, "b": 204.0, "fmt": "{:.1f}"},
+      {"name": "1-thread memcpy (GB/s)", "a": 22.9, "b": 24.2, "fmt": "{:.2f}"},
+      {"name": "NUMA-remote ratio (x)", "a": 1.61, "b": 1.63, "fmt": "{:.2f}"}
+    ],
+    "caption": "Same server, same day, same tooling - symmetric 20-DIMM kit vs the 24-DIMM kit validated 30 minutes earlier.",
+    "notes": "Bandwidth tracks channel count linearly when the layout stays symmetric: 483.7 GB/s is 85% of the 24-DIMM figure on 83% of the channels (sysbench read/write 86%/84%). Contrast with today's asymmetric 22-DIMM kit (Run 2): MORE DIMMs but only 348.6 GB/s (60%), because one socket ran 11 channels and broke the UMC interleave. Population symmetry, not module count, governs aggregate bandwidth on EPYC. Capacity at this design point: 1.28 TB."
+  },
+  "sel_status": "BMC SEL: 0 new entries during the campaign (355 before and after; last entry 10:23 UTC, pre-test boot). The 13 entries added during the swap session (342 -> 355) are PSU AC-loss/presence and chassis-intrusion artifacts at 10:10 (benign - AC pulled during physical work), clock syncs, and a clean 10:22/10:23 power-on. NO memory events - unlike the second kit, nothing was mapped out.",
+  "dmesg_status": "Clean POST for this configuration: ACPI BERT is empty on the current boot (no error records ingested). During the campaign: 0 machine-check events, AMD EDAC CE=0/UE=0 on both controllers, core clocks 4100-4343 MHz under load, swap untouched, no OOM-killer activity.",
+  "findings": [
+    "The 4 vacant positions are deliberate, not failures: channels E and K are skipped on BOTH sockets (symmetric 10+10), dmidecode simply reports no SPD in those slots, ACPI BERT is empty and the BMC logged zero 'Memory Device Disabled' events - the clean-POST signature, directly unlike the second kit whose 2 modules were mapped out with fatal DRAM storage errors.",
+    "Bandwidth scales linearly with channel count under symmetric population: 483.7 GB/s aggregate = 85.2% of the 24-DIMM baseline on 83.3% of the channels (102% of the linear prediction); DRAM-bound sysbench read 311.1 GB/s (86%) and write 171.7 GB/s (84%) agree. The EPYC UMC interleave is fully intact at 10+10.",
+    "Today's four runs now bracket the population-geometry rule: symmetric 24-DIMM ~570-580 GB/s; symmetric 20-DIMM ~484 GB/s (linear); asymmetric 22-DIMM only 348.6 GB/s - more modules, 28% less bandwidth than this 20-DIMM layout. Symmetry, not module count, governs aggregate bandwidth.",
+    "The 5-minute 100% burn is spotless: 1156 GB (92% of RAM) resident for the entire window, 1,396,932,249 verified operations with zero failures, zero OOM, swap untouched; EDAC CE=0/UE=0; zero machine-checks; zero new SEL entries during the campaign.",
+    "Single-thread and NUMA behavior nominal: 22.9 GB/s 1-thread memcpy, node0->node0 22.5 GiB/s vs node0->node1 14.0 GiB/s = 1.61x remote penalty (family norm).",
+    "Kit identity recorded for traceability: fourth distinct set today, zero serial overlap with all three prior kits. 19 modules from lot 80CE04254742Exxxxx plus ONE module from the older lot family (P1 CH-J, s/n 80CE04254642E03E0C) - mixed lot is acceptable (identical part number, speed, rank) but worth tracking in inventory. Full slot-by-slot map incl. the 4 vacant positions in the Hardware Inventory section."
+  ],
+  "recommendations": [
+    "Configuration qualified at its design point: 20/20 modules trained, zero errors, linear-scaling bandwidth (~484 GB/s) and 1.28 TB capacity - cleared for production workloads sized to this envelope.",
+    "If full bandwidth/capacity is needed, populate the 4 vacant positions (CH E + K, both sockets): today's data predicts ~570-580 GB/s and 1.5 TB restored.",
+    "Adopt as a fleet rule: any reduced population MUST stay socket-symmetric (same channels on both sockets). Today's controlled comparison proves symmetric-20 out-delivers asymmetric-22 by 39% aggregate bandwidth.",
+    "Track the single older-lot module (P1 CH-J, s/n 80CE04254642E03E0C) in inventory; prefer uniform lots per server where stock allows.",
+    "Install rasdaemon and enable BIOS patrol scrub before production; optional 3-hour qualification soak (memtester near-full-residency + extended soak) before customer handover."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["Fourth kit: 20x 64 GB DDR5-5600 (1.28 TB)", "20/20 trained at full 5600 MT/s; clean POST (no BERT/SEL events); 0 ECC/MCE", "PASS"],
+      ["Stability (5-min 100% load)", "1.40G verified ops, 0 failures, 0 OOM/swap; 92% residency; clocks 4.10-4.34 GHz", "PASS"],
+      ["Memory bandwidth", "483.7 GB/s aggregate = 102% of linear 10/12-channel scaling - interleave intact", "PASS"],
+      ["Capacity/bandwidth headroom", "4 vacant channels (E+K per socket): populating to 24 restores ~575 GB/s + 1.5 TB", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --vm-bytes 1232991884738 (total, split across workers; --vm-keep) --vm-method all --verify --timeout 300s -> 1156 GB resident (92%) for the full window (10:27:03-10:32:09 UTC)",
+    "bandwidth": "stress-ng --stream 64 --stream-l3-size 256M (30 s) -> 483.7 GB/s; sysbench memory 1 GiB blocks/thread, scope=local, 64T: read 311.1 / write 171.7 GB/s; mbw -n 3 1024 (1T) -> 22.9 GB/s",
+    "numa": "numactl --cpunodebind=0 --membind={0,1} mbw -n 2 2048 -> 22.5 vs 14.0 GiB/s memcpy = 1.61x remote penalty",
+    "evidence": "dmidecode -t 17 (20/24 with SPD, 4 vacant); ipmitool sel info/list (no memory events; swap-session artifacts only); dmesg (BERT empty this boot)",
+    "edac": "AMD EDAC (2 UMC controllers); ce_count + ue_count diffed pre/post; SEL info diffed (355 -> 355)",
+    "cpu_freq": "/proc/cpuinfo MHz sampled every 20 s during the burn (peak 4342.9 MHz); turbostat post-check (Bzy_MHz 2305, 223 W package)",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic",
+    "campaign_window": "11 Jun 2026 10:26-10:34 UTC (7m 19s)",
+    "note": "Identical tooling and methodology to today's Run-1/2/3 reports on this server; comparison numbers taken from those runs. Linear-scaling reference: 567.5 GB/s x 10/12 = 473 GB/s."
+  }
+}

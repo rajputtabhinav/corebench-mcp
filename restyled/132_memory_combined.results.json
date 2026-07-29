@@ -1,0 +1,1847 @@
+{
+  "meta": {
+    "report_title": "Consolidated Memory Validation Report",
+    "subtitle": "Samsung 64 GB DDR5-5600 RDIMM screening on Tyrone MDA200A2N-224 (172.16.11.132) - complete module register with status",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.132",
+    "server_ip": "172.16.11.132",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T, Zen 5 Turin)",
+    "tier": "consolidated acceptance record",
+    "window": "11 Jun 2026 06:47-11:47 UTC (six campaigns)",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-11",
+    "status": "PASS WITH LIMITATIONS"
+  },
+  "executive_summary": [
+    "Consolidated acceptance record for one day of memory validation on server 172.16.11.132 (Tyrone MDA200A2N-224, dual AMD EPYC 9135, 24 DDR5 slots). 100 Samsung M321R8GA0PB0-CWMCJ 64 GB DDR5-5600 RDIMMs were handled in total. Identical protocol in every campaign: 5-minute 100% memory burn (stress-ng --vm-method all --verify at 91-92% RAM residency), DRAM-bound bandwidth benchmarks (stress-ng stream 256M working set, sysbench 1 GiB private blocks, mbw, NUMA local/remote) and pre/post health diff (AMD EDAC, MCE, BMC SEL, ACPI BERT, dmidecode serial maps). Cumulative: 8.97 billion verified operations over 30.6 minutes of full-pressure burn - zero verification failures, zero ECC errors, zero machine-checks across all campaigns. The platform itself is fully validated: every one of the 24 slots trained good modules during the day, and the CPUs held full ~4.34 GHz boost in every run.",
+    "RESULT - see the Complete Module Register: 90 modules are WORKING - OK (each passed at least one 100% verify-burn at full 5600 MT/s in this server) and 10 modules are FAULTY / DAMAGED - REQUIRE RMA (physically label-recorded and quarantined; two of them were firmware-mapped-out in this server with fatal ACPI BERT 'DRAM storage error' records, and one - s/n ...4642E03CB7 - passed an earlier screen before being damaged, so it must NOT be reinstalled). Performance rule established for the fleet: symmetric channel populations scale linearly (24ch 567-581 GB/s; 20ch 484 GB/s = 102% of linear), asymmetric populations are degraded and unstable (314-425 GB/s, 55-75% of baseline). Current server state: interim 22/24 (1.385 TB); closure = install confirmed-good spare ...EEF450 plus one more verified-good module into P0 CH-G / P1 CH-I and run a final 20-minute re-screen (expected ~570-580 GB/s, 1.5 TB). Watch item: TEMP_P0_DIMM_J logged two brief self-clearing upper-critical excursions during write-heavy phases of asymmetric runs."
+  ],
+  "scorecard": {
+    "header": [
+      "Subsystem",
+      "Result",
+      "Detail",
+      "Verdict"
+    ],
+    "rows": [
+      [
+        "Platform (2x EPYC 9135, 24 slots)",
+        "No slot/CPU/BMC fault in 6 campaigns",
+        "Every slot trained good modules during the day; full boost x6",
+        "PASS"
+      ],
+      [
+        "Stress stability (6x 100% burns)",
+        "8.97G verified ops, 0 failures",
+        "30.6 min cumulative at 91-92% RAM residency; 0 OOM/swap",
+        "PASS"
+      ],
+      [
+        "ECC / MCE integrity",
+        "0 CE / 0 UE / 0 MCE in all runs",
+        "Only under-test SEL events: 2x TEMP_P0_DIMM_J excursions",
+        "PASS"
+      ],
+      [
+        "Population geometry",
+        "Symmetric = linear; asymmetric = unstable",
+        "24ch 567-581; 20ch 484 (102% linear); asym 22ch 314-425",
+        "PASS"
+      ],
+      [
+        "Module register (100 handled)",
+        "90 WORKING - OK / 10 FAULTY - RMA",
+        "Complete per-serial status table inside; quarantine done",
+        "LIMITED"
+      ],
+      [
+        "Current configuration (interim)",
+        "22/24 active, 1.385 TB, asym 11+11",
+        "Fit ...EEF450 + 1 verified-good module -> final re-screen",
+        "LIMITED"
+      ]
+    ]
+  },
+  "hardware": {
+    "system": {
+      "vendor": "Tyrone (Netweb)",
+      "model": "MDA200A2N-224",
+      "hostname": "172.16.11.132"
+    },
+    "cpu": {
+      "model": "2x AMD EPYC 9135 (Zen 5 'Turin')",
+      "sockets": 2,
+      "cores_per_socket": 16,
+      "threads": 64,
+      "base_ghz": 3.65,
+      "boost_ghz": 4.3,
+      "numa_nodes": 2,
+      "isa": "AVX-512 (Zen 5); L3 128 MiB (8x 16 MiB CCD)"
+    },
+    "memory": {
+      "total": "CURRENT: 1.385 TB (22x 64 GB; interim until 24/24 restored)",
+      "type": "DDR5 RDIMM ECC (Samsung M321R8GA0PB0-CWMCJ, 64GB 2Rx4 PC5-5600B-RA0-1010-XT)",
+      "dimms_populated": "22 of 24 - P0 CH-G and P1 CH-I vacant (faulty modules removed; see register)",
+      "configured_speed": "5600 MT/s (all active modules, every run)",
+      "rated_speed": "5600 MT/s",
+      "speed_status": "full module-rated speed in all six campaigns; platform supports 6000 MT/s with faster DIMMs",
+      "module_detail": "2R x4, 80-bit total width (64-bit data + 16-bit ECC), Synchronous Registered (Buffered)"
+    },
+    "dimms": [
+      {
+        "slot": "P0 CH-A",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EEF49E",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-B",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E03EBD",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-C",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E03CB6",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-D",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EEF533",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-E",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EEF1E2",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-F",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04755",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-G",
+        "size": "-",
+        "speed": "-",
+        "vendor": "-",
+        "part": "Vacant - faulty module removed",
+        "serial": "(see register)",
+        "rank_width": "-"
+      },
+      {
+        "slot": "P0 CH-H",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04799",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-I",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EF0151",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-J",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04546",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-K",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04972",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P0 CH-L",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04754",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-A",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EF008C",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-B",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E0479B",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-C",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E0479D",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-D",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E03ECE",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-E",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E09082",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-F",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E04CC2",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-G",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E03A8E",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-H",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E09064",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-I",
+        "size": "-",
+        "speed": "-",
+        "vendor": "-",
+        "part": "Vacant - faulty module removed",
+        "serial": "(see register)",
+        "rank_width": "-"
+      },
+      {
+        "slot": "P1 CH-J",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E048E1",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-K",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254642E09061",
+        "rank_width": "2R / 80-bit"
+      },
+      {
+        "slot": "P1 CH-L",
+        "size": "64 GB",
+        "speed": 5600,
+        "vendor": "Samsung",
+        "part": "M321R8GA0PB0-CWMCJ",
+        "serial": "80CE04254742EF0032",
+        "rank_width": "2R / 80-bit"
+      }
+    ],
+    "kernel": {
+      "distro": "Ubuntu 22.04.4 LTS",
+      "kernel": "6.8.0-124-generic"
+    }
+  },
+  "comparison": {
+    "servers": [
+      "Best symmetric (24x DIMM)",
+      "Worst asymmetric (22x DIMM)"
+    ],
+    "metrics": [
+      {
+        "name": "Aggregate stream (GB/s)",
+        "a": 581.1,
+        "b": 314.2,
+        "fmt": "{:.1f}"
+      },
+      {
+        "name": "sysbench read 64T (GB/s)",
+        "a": 355.3,
+        "b": 211.7,
+        "fmt": "{:.1f}"
+      },
+      {
+        "name": "sysbench write 64T (GB/s)",
+        "a": 205.6,
+        "b": 91.5,
+        "fmt": "{:.1f}"
+      },
+      {
+        "name": "1-thread memcpy (GB/s)",
+        "a": 23.8,
+        "b": 23.0,
+        "fmt": "{:.2f}"
+      },
+      {
+        "name": "NUMA-remote ratio (x)",
+        "a": 1.6,
+        "b": 1.59,
+        "fmt": "{:.2f}"
+      }
+    ],
+    "caption": "The day's performance envelope - best symmetric vs worst asymmetric population, same server, same module family, same tooling.",
+    "notes": "Aggregate bandwidth spans 1.85x between symmetric and asymmetric populations while single-thread memcpy and the NUMA-remote ratio stay flat - channel-interleave geometry, not module health, governs aggregate throughput. Asymmetric 22-channel boots returned 314.2, 346.7, 348.6 and 425.0 GB/s with no configuration change: degraded AND non-deterministic."
+  },
+  "extra_tables": [
+    {
+      "title": "Campaign Timeline & Verdicts",
+      "caption": "Six test campaigns on 11 Jun 2026, identical 20-minute protocol.",
+      "header": [
+        "Run",
+        "Window (UTC)",
+        "Configuration",
+        "Key outcome",
+        "Verdict"
+      ],
+      "widths_mm": [
+        14,
+        30,
+        44,
+        66,
+        20
+      ],
+      "verdict_last": true,
+      "rows": [
+        [
+          "1",
+          "06:47-07:01",
+          "24x 64 GB (12+12)",
+          "581.1 GB/s; 0 errors; full 5600 MT/s",
+          "PASS"
+        ],
+        [
+          "2",
+          "09:08-09:17",
+          "24x installed, 22 trained (11+11)",
+          "2 modules mapped out (BERT fatal); 348.6 GB/s (-40%)",
+          "FAIL"
+        ],
+        [
+          "3",
+          "09:54-10:02",
+          "24x 64 GB (12+12)",
+          "Clean POST; 567.5 GB/s; 0 errors",
+          "PASS"
+        ],
+        [
+          "4",
+          "10:26-10:34",
+          "20x 64 GB, symmetric 10+10",
+          "483.7 GB/s = 102% of linear scaling; 0 errors",
+          "PASS"
+        ],
+        [
+          "5-A",
+          "11:12-11:20",
+          "24x installed, 22 trained (11+11)",
+          "Faulty pair mapped out again (different slots); 425.0 GB/s",
+          "FAIL"
+        ],
+        [
+          "5-B",
+          "11:39-11:47",
+          "Faulty pair removed: 22x active (11+11)",
+          "Clean POST; burn clean; 314.2 GB/s (asym, unstable)",
+          "LIMITED"
+        ]
+      ]
+    },
+    {
+      "title": "Cross-Run Results Matrix",
+      "caption": "All measurements with identical tooling. * Run 5-B stream recheck immediately after: 346.7 GB/s.",
+      "header": [
+        "Metric",
+        "Run 1",
+        "Run 2",
+        "Run 3",
+        "Run 4",
+        "Run 5-A",
+        "Run 5-B"
+      ],
+      "widths_mm": [
+        39,
+        22.5,
+        22.5,
+        22.5,
+        22.5,
+        22.5,
+        22.5
+      ],
+      "font": 7,
+      "rows": [
+        [
+          "DIMMs trained / installed",
+          "24/24",
+          "22/24",
+          "24/24",
+          "20/20",
+          "22/24",
+          "22/22"
+        ],
+        [
+          "Usable capacity (TB)",
+          "1.5",
+          "1.385",
+          "1.5",
+          "1.28",
+          "1.385",
+          "1.385"
+        ],
+        [
+          "Channels per socket",
+          "12+12",
+          "11+11",
+          "12+12",
+          "10+10",
+          "11+11",
+          "11+11"
+        ],
+        [
+          "Burn resident GB (% RAM)",
+          "1373 (91%)",
+          "1272 (92%)",
+          "1388 (92%)",
+          "1156 (92%)",
+          "1272 (92%)",
+          "1273 (92%)"
+        ],
+        [
+          "Burn verified ops (billion)",
+          "1.56",
+          "1.47",
+          "1.58",
+          "1.40",
+          "1.48",
+          "1.48"
+        ],
+        [
+          "Verify fails / ECC CE+UE / MCE",
+          "0 / 0 / 0",
+          "0 / 0 / 0",
+          "0 / 0 / 0",
+          "0 / 0 / 0",
+          "0 / 0 / 0",
+          "0 / 0 / 0"
+        ],
+        [
+          "Aggregate stream (GB/s)",
+          "581.1",
+          "348.6",
+          "567.5",
+          "483.7",
+          "425.0",
+          "314.2*"
+        ],
+        [
+          "sysbench read / write (GB/s)",
+          "355 / 206",
+          "207 / 91",
+          "361 / 204",
+          "311 / 172",
+          "220 / 98",
+          "212 / 92"
+        ],
+        [
+          "1-thread memcpy (GB/s)",
+          "23.8",
+          "22.8",
+          "24.2",
+          "22.9",
+          "23.2",
+          "23.0"
+        ],
+        [
+          "NUMA-remote ratio",
+          "1.60x",
+          "1.62x",
+          "1.63x",
+          "1.61x",
+          "1.52x",
+          "1.59x"
+        ],
+        [
+          "Peak core clock (MHz)",
+          "4346",
+          "4342",
+          "4341",
+          "4343",
+          "4339",
+          "4343"
+        ],
+        [
+          "New SEL during test",
+          "0",
+          "0",
+          "0",
+          "0",
+          "+2 (DIMM-J temp)",
+          "+2 (DIMM-J temp)"
+        ]
+      ]
+    },
+    {
+      "title": "Complete Module Register - All 100 Memories with Status",
+      "caption": "Every module handled on 11 Jun 2026. Run = campaign(s) the module was tested in; Slot = last tested position (P0-A = socket P0, channel A). Module data from SPD; for the 10 quarantined modules the data comes from the physical label (label Mfg code shown in the Part Number column). All modules: Samsung 64GB 2Rx4 PC5-5600B-RA0-1010-XT, 80-bit total width (64-bit data + 16-bit ECC). WORKING - OK = passed at least one 5-minute 100% verify-burn at full 5600 MT/s with zero ECC/verify errors. FAULTY / DAMAGED - RMA = label-recorded faulty or damaged, physically quarantined.",
+      "header": [
+        "#",
+        "Run",
+        "Slot",
+        "Size",
+        "MT/s",
+        "Vendor",
+        "Part Number",
+        "Serial Number (S)",
+        "R/W",
+        "Status"
+      ],
+      "widths_mm": [
+        6,
+        8,
+        14,
+        10,
+        10,
+        13,
+        27,
+        36,
+        12,
+        38
+      ],
+      "verdict_last": true,
+      "font": 6.5,
+      "rows": [
+        [
+          "1",
+          "1",
+          "P0-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08E55",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "2",
+          "1",
+          "P0-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08E6A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "3",
+          "1",
+          "P0-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0479C",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "4",
+          "1",
+          "P0-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0479A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "5",
+          "1",
+          "P0-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08E04",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "6",
+          "1",
+          "P0-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04751",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "7",
+          "1",
+          "P0-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09063",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "8",
+          "1",
+          "P0-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0905F",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "9",
+          "1",
+          "P0-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0906D",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "10",
+          "1",
+          "P0-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03CB5",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "11",
+          "1",
+          "P0-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08E08",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "12",
+          "1",
+          "P0-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08EB8",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "13",
+          "1",
+          "P1-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03DAA",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "14",
+          "1",
+          "P1-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E048B8",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "15",
+          "1",
+          "P1-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08E06",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "16",
+          "1",
+          "P1-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09060",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "17",
+          "1",
+          "P1-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09070",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "18",
+          "1",
+          "P1-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08DFA",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "19",
+          "1",
+          "P1-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04798",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "20",
+          "1",
+          "P1-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E08D23",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "21",
+          "1",
+          "P1-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04859",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "22",
+          "1",
+          "P1-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04729",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "23",
+          "1",
+          "P1-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03CB1",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "24",
+          "1",
+          "P1-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04569",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "25",
+          "2&5",
+          "P1-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0479B",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "26",
+          "2&5",
+          "P1-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09061",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "27",
+          "2&5",
+          "P1-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E048E1",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "28",
+          "2&5",
+          "P1-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09064",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "29",
+          "2&5",
+          "P1-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03A8E",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "30",
+          "2&5",
+          "P1-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E0479D",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "31",
+          "2&5",
+          "P1-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03ECE",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "32",
+          "2&5",
+          "P1-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E09082",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "33",
+          "2&5",
+          "P1-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04CC2",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "34",
+          "2&5",
+          "P0-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04755",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "35",
+          "2&5",
+          "P1-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF0032",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "36",
+          "2&5",
+          "P0-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03EBD",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "37",
+          "2&5",
+          "P0-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03CB6",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "38",
+          "2&5",
+          "P0-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF49E",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "39",
+          "2&5",
+          "P0-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF533",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "40",
+          "2&5",
+          "P0-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1E2",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "41",
+          "2&5",
+          "P0-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04799",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "42",
+          "2&5",
+          "P0-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04546",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "43",
+          "2&5",
+          "P0-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04972",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "44",
+          "2&5",
+          "P0-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E04754",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "45",
+          "2",
+          "spare",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF450 - good spare, to install",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "46",
+          "3",
+          "P0-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF532",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "47",
+          "3",
+          "P0-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1A9",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "48",
+          "3",
+          "P0-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF217",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "49",
+          "3",
+          "P0-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF00EE",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "50",
+          "3",
+          "P0-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFA5D",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "51",
+          "3",
+          "P0-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD0F",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "52",
+          "3",
+          "P0-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFCE4",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "53",
+          "3",
+          "P0-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD48",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "54",
+          "3",
+          "P0-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEEF26",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "55",
+          "3",
+          "P0-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF49C",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "56",
+          "3",
+          "P0-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFCE2",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "57",
+          "3",
+          "P0-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF439",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "58",
+          "3",
+          "P1-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEEF20",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "59",
+          "3",
+          "P1-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1DA",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "60",
+          "3",
+          "P1-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFF9B",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "61",
+          "3",
+          "P1-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF43A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "62",
+          "3",
+          "P1-E",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD43",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "63",
+          "3",
+          "P1-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF218",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "64",
+          "3",
+          "P1-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1DC",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "65",
+          "3",
+          "P1-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFA3D",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "66",
+          "3",
+          "P1-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFF9A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "67",
+          "3",
+          "P1-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF3FD",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "68",
+          "3",
+          "P1-K",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF008B",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "69",
+          "3",
+          "P1-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF4EE",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "70",
+          "4",
+          "P0-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD13",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "71",
+          "4",
+          "P0-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD11",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "72",
+          "4",
+          "P0-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFA0A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "73",
+          "4",
+          "P0-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1DB",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "74",
+          "4",
+          "P0-F",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1D9",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "75",
+          "4",
+          "P0-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF534",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "76",
+          "4",
+          "P0-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEEEF5",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "77",
+          "4",
+          "P0-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF58E",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "78",
+          "4",
+          "P0-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFA37",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "79",
+          "4",
+          "P0-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFF82",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "80",
+          "4",
+          "P1-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1AF",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "81",
+          "4",
+          "P1-B",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF58B",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "82",
+          "4",
+          "P1-C",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF21A",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "83",
+          "4",
+          "P1-D",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFD18",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "84",
+          "4&5",
+          "P0-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF0151",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "85",
+          "4",
+          "P1-G",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF00EF",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "86",
+          "4",
+          "P1-H",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF1E0",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "87",
+          "4",
+          "P1-I",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEF3A8",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "88",
+          "4",
+          "P1-J",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254642E03E0C",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "89",
+          "4",
+          "P1-L",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EEFA3E",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "90",
+          "5",
+          "P1-A",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ",
+          "80CE04254742EF008C",
+          "2Rx4 80b",
+          "WORKING - OK"
+        ],
+        [
+          "91",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03CB8",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "92",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E04154",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "93",
+          "2",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03CB7 - do NOT reinstall",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "94",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E04752",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "95",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0T0000",
+          "80CE04254742EEEF21",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "96",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03CF9",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "97",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03CF7",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "98",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03A8D",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "99",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DU000",
+          "80CE04254642E08EAB",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ],
+        [
+          "100",
+          "-",
+          "-",
+          "64 GB",
+          "5600",
+          "Samsung",
+          "M321R8GA0PB0-CWMCJ (M)H0DE000",
+          "80CE04254642E03CB2",
+          "2Rx4 80b",
+          "FAULTY / DAMAGED - RMA"
+        ]
+      ]
+    }
+  ],
+  "sel_status": "Across the day the BMC SEL grew 279 -> 402. Under test: zero new entries in Runs 1-4; +2 in each Run-5 phase (TEMP_P0_DIMM_J 'Upper Critical going high' assert/deassert, 15 s and 9 s, both self-clearing, fans nominal at 14.4 kRPM). Between campaigns: benign PSU AC-loss / chassis-intrusion artifacts from physical work, and 'Memory Device Disabled' (one per affected socket) on every boot that carried a faulty module; ZERO memory events on all clean boots.",
+  "dmesg_status": "ACPI BERT (AMD firmware-first) identified every bad module at POST: fatal 'Storage error in DRAM memory (0x0000000000040400) ... error_type 15, physical memory map-out event' records at P0MC0 + P1ML0 and later P0MG0 + P1MI0 - four different slots, identical signature, proving module-internal faults (the affected modules are in the register, status FAULTY). BERT was EMPTY on every clean boot. Kernel-side: 0 machine-check events in all six campaigns; AMD EDAC CE=0/UE=0 before and after every burn; no OOM, swap untouched throughout.",
+  "findings": [
+    "MODULE REGISTER (the deliverable): of 100 modules handled, 90 are WORKING - OK (each passed at least one 5-minute 100% verify-burn at full 5600 MT/s with zero ECC/verify errors) and 10 are FAULTY / DAMAGED - REQUIRE RMA (label-recorded, quarantined). Only one of the ten (s/n ...4642E03CB7, register #93) was ever electronically readable in this server - it passed an early screen and was later damaged; it must NOT be reinstalled. The other nine were never SPD-readable here, consistent with dead/failed-training modules (the firmware-mapped-out pairs are among them) or handling damage.",
+    "PLATFORM CLEARED: across six campaigns the server showed no fault - all 24 slots trained good modules during the day (no slot/socket damage), CPUs sustained 4339-4346 MHz peak boost in every burn, PSUs and all six fans nominal, and BMC/BERT instrumentation correctly flagged every bad module at POST.",
+    "STRESS RECORD: six 5-minute 100% burns totalling 8,965,251,306 verified operations and 30.6 minutes at 91-92% RAM residency - zero verification failures, zero ECC corrected/uncorrected errors, zero machine-checks, zero OOM/swap events. Every module that trained also passed its burn.",
+    "POPULATION-GEOMETRY LAW: symmetric populations scale linearly (24 channels: 567.5-581.1 GB/s; symmetric 20 channels: 483.7 GB/s = 102% of linear), asymmetric populations are degraded AND non-deterministic (22 channels: 314.2-425.0 GB/s = 55-75% of baseline, varying boot-to-boot). Single-thread memcpy and NUMA-remote ratio stayed flat throughout - the penalty is pure interleave geometry. Fleet rule: reduced populations MUST be socket-symmetric.",
+    "GOOD-SPARE STATUS: s/n 80CE04254742EEF450 (register #45) is the confirmed good spare for this server's two vacant slots; one additional verified-good module is required to restore 24/24.",
+    "THERMAL WATCH: TEMP_P0_DIMM_J (module s/n ...E04546, register #42) logged two brief self-clearing upper-critical excursions during write-heavy phases of asymmetric runs (15 s, 9 s); post-test readings normal, fans nominal. Verify during the final symmetric re-screen; if it recurs, swap the module's position to test whether the hot-spot follows it.",
+    "METHODOLOGY (pinned): this stress-ng build splits --vm-bytes across workers (size as TOTAL with --vm-keep); stress-ng --stream on EPYC needs --stream-l3-size 256M (default cache-detection inflates 2.4x); sysbench memory needs 1 GiB private blocks, scope=local (defaults measure cache on reads and lock contention on writes)."
+  ],
+  "recommendations": [
+    "RMA package: submit the ten FAULTY/DAMAGED modules (register rows 91-100, with label serials and mfg codes) together with this consolidated report and the five per-run reports as evidence. Keep the quarantine physically segregated and marked.",
+    "Closure for 172.16.11.132: install good spare s/n 80CE04254742EEF450 (register #45) plus ONE additional verified-good 64 GB module into P0 CH-G and P1 CH-I (restoring symmetric 12+12, 1.5 TB) and run the standard 20-minute re-screen - expected ~570-580 GB/s. Do NOT use ...E03CB7 (register #93).",
+    "Until closure, treat the current 22/24 asymmetric configuration as interim: do not deploy bandwidth-sensitive production workloads (55-75% of baseline, non-deterministic across reboots).",
+    "Fleet population rule (validated): any reduced DIMM population must keep both sockets symmetric on the same channel letters.",
+    "Process SOP (now in effect): record label serials and physically quarantine failed DIMMs at the moment of removal - mapped-out modules expose no SPD.",
+    "During the closure re-screen watch TEMP_P0_DIMM_J; afterwards install rasdaemon and enable BIOS patrol scrub, and schedule the 3-hour qualification tier before customer handover."
+  ],
+  "conclusion": {
+    "header": [
+      "Area",
+      "Outcome",
+      "Verdict"
+    ],
+    "rows": [
+      [
+        "Server platform (172.16.11.132)",
+        "Validated across 6 campaigns: all slots, CPUs, PSUs, fans, BMC healthy; full boost throughout",
+        "PASS"
+      ],
+      [
+        "90 modules (register 1-90)",
+        "WORKING - OK: each passed a 100% verify-burn at full 5600 MT/s with zero errors",
+        "PASS"
+      ],
+      [
+        "10 modules (register 91-100)",
+        "FAULTY / DAMAGED - label-recorded, quarantined, RMA package ready",
+        "FAIL"
+      ],
+      [
+        "Population geometry",
+        "Symmetric = linear scaling; asymmetric = degraded + unstable - fleet rule adopted",
+        "PASS"
+      ],
+      [
+        "Current config & closure",
+        "Interim 22/24 (1.385 TB); fit #45 ...EEF450 + 1 verified-good module -> final 20-min re-screen",
+        "LIMITED"
+      ]
+    ]
+  },
+  "reproducibility": {
+    "protocol": "Per campaign: dmidecode -t 17 serial map + EDAC/MCE/SEL/BERT baseline -> 5-min stress-ng --vm 64 --vm-bytes <92% MemAvailable, total> --vm-keep --vm-method all --verify burn with 20 s sampler -> stress-ng --stream 64 --stream-l3-size 256M -> sysbench memory 1 GiB blocks/thread scope=local read+write 64T -> mbw 1T -> numactl-bound mbw local/remote -> EDAC/MCE/SEL/BERT/temperature diff",
+    "source_reports": "Netweb_132_MDA200_Memory_Validation_Report.pdf (Run 1) / _Run2.pdf / _Run3.pdf / _Run4.pdf / _Run5.pdf (two-phase) - contracts 132_memory*.results.json in CoreBench MCP restyled/",
+    "evidence": "ACPI BERT fatal records (P0MC0, P1ML0, P0MG0, P1MI0); BMC SEL 'Memory Device Disabled' entries on every faulty-module boot; dmidecode SPD enumeration per run; physical label data for the 10 quarantined modules (register rows 91-100)",
+    "tooling_gotchas": "stress-ng --vm-bytes = TOTAL split across workers on this build; --stream needs --stream-l3-size 256M on EPYC; sysbench memory needs --memory-block-size=1G --memory-scope=local",
+    "distro": "Ubuntu 22.04.4 LTS",
+    "kernel": "6.8.0-124-generic",
+    "campaign_window": "11 Jun 2026 06:47-11:47 UTC; cumulative burn 30.6 min @ 91-92% residency, 8.97 billion verified ops",
+    "note": "This consolidated report supersedes the closure recommendation in the Run-5 report (...E03CB7 reclassified FAULTY; replaced by ...EEF450 + one verified-good module)."
+  }
+}

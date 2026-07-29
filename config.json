@@ -1,0 +1,46 @@
+{
+  "_comment": "The ONE file you edit per campaign. Branding + datasheet targets. Fields set to 'auto' are filled at run time. Narrative fields (executive_summary/findings/recommendations) may be left empty for the AI agent to draft from results.json.",
+
+  "meta": {
+    "report_title": "Server Hardware Validation Report",
+    "subtitle": "Compute, Memory, Storage, Network, Power & Thermal",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "prepared_for": "Netweb Technologies India Limited",
+    "hostname": "auto",
+    "server_ip": "auto",
+    "platform": "auto",
+    "tier": "auto",
+    "window": "auto",
+    "date": "auto",
+    "status": "auto"
+  },
+
+  "auto_scorecard": true,
+  "thresholds": { "limited": 90, "action": 75 },
+
+  "spec_targets": [
+    { "metric": "GEMM FP8 (per GPU)", "rated": 4500, "unit": "TFLOPS", "subsystem": "GPU / AI",
+      "from": { "fragment": "gpu", "field": "avg_gemm_fp8_tflops" } },
+    { "metric": "HBM bandwidth (per GPU)", "rated": 8000, "unit": "GB/s", "subsystem": "GPU / AI",
+      "from": { "fragment": "gpu", "field": "avg_hbm_bw_gbs" } },
+    { "metric": "NVLink bandwidth (per GPU)", "rated": 1800, "unit": "GB/s", "subsystem": "GPU / AI",
+      "from": { "fragment": "gpu", "field": "min_nvlink_bw_gbs" } },
+    { "metric": "HPL Rmax",          "rated": 6.77,    "unit": "TFLOPS", "subsystem": "Compute",
+      "from": { "fragment": "cpu", "field": "hpl_tflops" } },
+    { "metric": "STREAM Triad",      "rated": 980,     "unit": "GB/s", "subsystem": "Memory",
+      "from": { "fragment": "memory", "field": "stream_triad_gbs" } },
+    { "metric": "RoCE ib_write_bw",  "rated": 400,     "unit": "Gb/s", "subsystem": "Network",
+      "from": { "fragment": "network", "field": "roce_ib_write_bw_gbps" } },
+    { "metric": "Seq Read (nvme0)",  "rated": 6.8,     "unit": "GB/s", "subsystem": "Storage",
+      "from": { "fragment": "storage", "match": { "label": "nvme0" }, "field": "seq_read_gbs" } },
+    { "metric": "4K Rand Write (nvme0)", "rated": 360000,  "unit": "IOPS", "subsystem": "Storage",
+      "from": { "fragment": "storage", "match": { "label": "nvme0" }, "field": "rand_write_iops" } },
+    { "metric": "4K Rand Write (nvme3)", "rated": 360000,  "unit": "IOPS", "subsystem": "Storage",
+      "from": { "fragment": "storage", "match": { "label": "nvme3" }, "field": "rand_write_iops" } }
+  ],
+
+  "executive_summary": [],
+  "findings": [],
+  "recommendations": []
+}

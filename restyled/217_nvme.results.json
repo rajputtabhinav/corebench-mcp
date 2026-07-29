@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "report_title": "3-Hour NVMe SSD Validation Report",
+    "subtitle": "2x Samsung PM1743 15.36 TB (Gen5) + 2x 960 GB NVMe",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.13.217",
+    "server_ip": "172.16.13.217",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T), 1.13 TB DDR5",
+    "tier": "qualification",
+    "window": "02 Jun 2026 06:30-06:45 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-02",
+    "status": "PASS WITH LIMITATIONS"
+  },
+  "executive_summary": [
+    "Performance validation of four Samsung NVMe SSDs in server 172.16.13.217 (Tyrone MDA200A2N-224, dual AMD EPYC 9135): two 15.36 TB Samsung PM1743 enterprise U.2 drives (PCIe Gen5) and two 960 GB Samsung M.2 client drives. Each drive was exercised with a NUMA-pinned fio 3.28 direct-IO suite (sequential 1 MiB, 4 KiB random at QD512, mixed 70/30, and QD1 latency), one-per-socket in two waves to eliminate cross-drive contention.",
+    "Both PM1743 drives are validated for production at full PCIe Gen5 x4: ~12.3 GB/s sequential read, 7.06 GB/s write, ~1.75M 4K random-read IOPS at QD512, and 12 us QD1 write latency, with perfect health.",
+    "The two 960 GB drives are functionally healthy but severely throughput-limited: their PCIe link negotiated at Gen3 x2 instead of Gen4 x4 - a double downgrade - capping them at ~1.87 GB/s read and ~443K IOPS (the 1.8 GB/s x2 ceiling), about 26% of capability. This is a platform/slot link-training fault, not a drive defect, and must be corrected before these drives are qualified."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["PM1743 15.36 TB (Gen5 x4)", "12.3 GB/s read, ~1.75M IOPS", "Full Gen5 x4; 7.06 GB/s write; 12 us QD1 write", "PASS"],
+      ["PM1743 health & thermals", "0 errors, 0% wear, <=32 C", "No thermal throttling under load", "PASS"],
+      ["960 GB PCIe link", "Gen3 x2 (double downgrade)", "Gen4 x4 capable; trained 1 gen + half lanes too low", "ACTION"],
+      ["960 GB throughput", "1.87 GB/s read, 443K IOPS", "Link-capped at the 1.8 GB/s x2 wall (not NAND)", "LIMITED"],
+      ["SMART health (all 4)", "0 media errors, 0 crit warnings, 0% wear", "Clean", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone Systems", "model": "MDA200A2N-224", "board": "MH12XM", "chassis": "2U", "hostname": "172.16.13.217", "serial": "n/a"},
+    "cpu": {"model": "2x AMD EPYC 9135", "sockets": 2, "cores_per_socket": 16, "threads": 64,
+            "numa_nodes": 2, "numa_device_map": "PM1743 (nvme0/1) -> node1; 960 GB (nvme2/3) -> node0"},
+    "memory": {"total": "1.13 TB", "type": "DDR5"},
+    "bios": {"version": "AMI ES312AMS.205T8", "date": "2026-03-26"},
+    "bmc": {"firmware": "1.08"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-117-generic"},
+    "storage": [
+      {"dev": "/dev/nvme0n1", "label": "nvme0", "model": "Samsung PM1743", "pn": "MZWL615THBLF-00AW7", "form": "U.2 2.5in", "capacity": "15.36 TB", "serial": "n/a (FW LDDM7U2Q)", "link": "Gen5 x4", "link_capable": "Gen5 x4"},
+      {"dev": "/dev/nvme1n1", "label": "nvme1", "model": "Samsung PM1743", "pn": "MZWL615THBLF-00AW7", "form": "U.2 2.5in", "capacity": "15.36 TB", "serial": "n/a (FW LDDM7U2Q)", "link": "Gen5 x4", "link_capable": "Gen5 x4"},
+      {"dev": "/dev/nvme2n1", "label": "nvme2", "model": "Samsung PM9-series", "pn": "MZVL6960HFLB-01AW7", "form": "M.2 22x80", "capacity": "960 GB", "serial": "n/a (FW LDDD2U2Q)", "link": "Gen3 x2", "link_capable": "Gen4 x4"},
+      {"dev": "/dev/nvme3n1", "label": "nvme3", "model": "Samsung PM9-series", "pn": "MZVL6960HFLB-01AW7", "form": "M.2 22x80", "capacity": "960 GB", "serial": "n/a (FW LDDD2U2Q)", "link": "Gen3 x2", "link_capable": "Gen4 x4"}
+    ]
+  },
+  "benchmarks": {
+    "storage": [
+      {"dev": "/dev/nvme0n1", "label": "nvme0 (PM1743)", "model": "Samsung PM1743", "form": "U.2", "serial": "FW LDDM7U2Q",
+       "link": "Gen5 x4", "seq_read_gbs": 12.22, "seq_write_gbs": 7.06, "rand_read_iops": 1760240, "rand_write_iops": 1717838,
+       "qd1_read_us": 69.1, "qd1_write_us": 11.8, "link_capable_gbs": 15.75, "link_negotiated_gbs": 15.75, "link_width_warn": null},
+      {"dev": "/dev/nvme1n1", "label": "nvme1 (PM1743)", "model": "Samsung PM1743", "form": "U.2", "serial": "FW LDDM7U2Q",
+       "link": "Gen5 x4", "seq_read_gbs": 12.32, "seq_write_gbs": 7.06, "rand_read_iops": 1744989, "rand_write_iops": 1718100,
+       "qd1_read_us": 68.5, "qd1_write_us": 12.0, "link_capable_gbs": 15.75, "link_negotiated_gbs": 15.75, "link_width_warn": null},
+      {"dev": "/dev/nvme2n1", "label": "nvme2 (960G)", "model": "Samsung PM9-series", "form": "M.2", "serial": "FW LDDD2U2Q",
+       "link": "Gen3 x2", "seq_read_gbs": 1.87, "seq_write_gbs": 1.62, "rand_read_iops": 443231, "rand_write_iops": 395459,
+       "qd1_read_us": 66.5, "qd1_write_us": 15.5, "link_capable_gbs": 7.88, "link_negotiated_gbs": 1.97,
+       "link_width_warn": "Gen3 x2 negotiated vs Gen4 x4 capable -- double downgrade, ~26% of capability"},
+      {"dev": "/dev/nvme3n1", "label": "nvme3 (960G)", "model": "Samsung PM9-series", "form": "M.2", "serial": "FW LDDD2U2Q",
+       "link": "Gen3 x2", "seq_read_gbs": 1.87, "seq_write_gbs": 1.62, "rand_read_iops": 443237, "rand_write_iops": 395547,
+       "qd1_read_us": 66.2, "qd1_write_us": 15.5, "link_capable_gbs": 7.88, "link_negotiated_gbs": 1.97,
+       "link_width_warn": "Gen3 x2 negotiated vs Gen4 x4 capable -- double downgrade, ~26% of capability"}
+    ]
+  },
+  "spec_rows": [
+    {"metric": "PM1743 Seq Read", "measured": 12.22, "rated": 14.0, "unit": "GB/s"},
+    {"metric": "PM1743 Rand Read", "measured": 1760240, "rated": 2000000, "unit": "IOPS"},
+    {"metric": "960 GB Seq Read (vs Gen4 x4)", "measured": 1.87, "rated": 7.0, "unit": "GB/s"},
+    {"metric": "960 GB Rand Read (vs Gen4 x4)", "measured": 443231, "rated": 1700000, "unit": "IOPS"}
+  ],
+  "health": {
+    "header": ["Drive", "Link", "Temp pre->post", "Wear", "Media errors", "Verdict"],
+    "rows": [
+      ["nvme0n1 (PM1743)", "Gen5 x4", "24->32 C", "0%", "0", "PASS"],
+      ["nvme1n1 (PM1743)", "Gen5 x4", "24->31 C", "0%", "0", "PASS"],
+      ["nvme2n1 (960 GB)", "Gen3 x2", "36->42 C", "0%", "0", "PASS"],
+      ["nvme3n1 (960 GB)", "Gen3 x2", "35->41 C", "0%", "0", "PASS"]
+    ]
+  },
+  "dmesg_status": "All four drives: 0 media/data-integrity errors, 0 critical warnings, 0% endurance used. No thermal throttling (peak 42 C). 960 GB QD1 tail latency p99 ~3.6 ms vs ~0.47 ms on the PM1743 - a function of the Gen3 x2 link, not the NAND.",
+  "findings": [
+    "PM1743 15.36 TB drives are production-ready: both deliver ~12.3 GB/s read, 7.06 GB/s write, ~1.75M 4K random-read IOPS at QD512, ~1.0M read IOPS in a 70/30 mix, and 12 us QD1 write latency - fully validated at PCIe Gen5 x4.",
+    "All four drives are electrically healthy: zero media errors, zero critical warnings, 0% endurance used, clean thermals (<=42 C) under sustained load.",
+    "The two 960 GB drives are link-throttled, not faulty: both negotiated PCIe Gen3 x2 instead of Gen4 x4, capping throughput at the ~1.8 GB/s x2 wall (1.87 GB/s read, 443K IOPS) - about 26% of capability. QD1 latency stays healthy since single-IO latency is not link-width bound.",
+    "Consistency across pairs is excellent: the two PM1743 drives differ by <1% on every metric, as do the two 960 GB drives - indicating uniform parts and a stable test harness."
+  ],
+  "recommendations": [
+    "Fix the 960 GB PCIe link (priority): re-seat the drives; verify the M.2/U.2 slot is wired x4; check BIOS PCIe bifurcation for the node0 slots (PCI 51:00 / 52:00); confirm the riser/backplane is not forcing Gen3. Re-run lspci to confirm Gen4 x4 before re-qualifying - expect ~6-7 GB/s and 3-4x the random IOPS.",
+    "Consider 4K LBA format for the PM1743 drives: all namespaces are 512-byte; enterprise NVMe generally performs best at 4096-byte LBA (destructive nvme format before deployment).",
+    "For steady-state endurance numbers, run a full precondition: the reported random-write figures are fresh-state; a 2x full-span fill plus 30+ min random-write soak per drive would yield JEDEC steady-state IOPS.",
+    "Enable continuous monitoring: install nvme-cli / smartd alerting on the deployed host for temperature, media errors and endurance."
+  ],
+  "conclusion": {
+    "header": ["Device", "Outcome", "Verdict"],
+    "rows": [
+      ["2x Samsung PM1743 15.36 TB (nvme0/1)", "Validated at PCIe Gen5 x4, full performance, healthy", "PASS"],
+      ["2x Samsung 960 GB (nvme2/3)", "Healthy but PCIe link downgraded to Gen3 x2; correct slot/bifurcation, then re-test", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "fio": "fio 3.28",
+    "nvme_cli": "nvme-cli 1.16",
+    "distro": "Ubuntu 22.04.4 LTS",
+    "kernel": "Linux 6.8.0-117-generic",
+    "bios": "AMI ES312AMS.205T8 (2026-03-26)",
+    "bmc_firmware": "1.08",
+    "baseboard": "MH12XM",
+    "methodology": "ioengine=libaio, direct=1 (raw block device), numactl per-drive NUMA node, 2 waves one-per-socket",
+    "campaign_window": "02 Jun 2026 06:30-06:45 UTC",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "report_title": "20-Minute Memory Validation & Benchmark Report",
+    "subtitle": "Kit-2 remediation (2 phases): bad pair reinstalled, then removed - 22x Samsung 64 GB DDR5-5600 active (1.385 TB) - Tyrone MDA200A2N-224",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.132",
+    "server_ip": "172.16.11.132",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T, Zen 5 Turin)",
+    "tier": "screening (remediation retest, 2 phases)",
+    "window": "11 Jun 2026 11:12-11:47 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-11",
+    "status": "PASS WITH LIMITATIONS"
+  },
+  "executive_summary": [
+    "Two-phase remediation record for kit 2 in server 172.16.11.132 (Tyrone MDA200A2N-224, dual AMD EPYC 9135). PHASE A (11:12-11:20): 22 kit-2 modules + 2 new were installed, but two modules again failed DRAM training - mapped out at P0 CH-G and P1 CH-I with the identical fatal BERT signature kit 2 produced this morning ('Storage error in DRAM memory (0x40400) - physical memory map-out event'). Both slots trained other modules cleanly earlier today: the fault follows the modules. Serial accounting (kit-2 good modules ...EEF450 and ...E03CB7 absent; disabled pair SPD-unreadable) shows the original unlabeled bad pair had been mixed back into the build. PHASE A verdict: FAIL as installed.",
+    "PHASE B (11:39-11:47, after the faulty pair was physically removed): first clean POST of the kit-2 saga - ACPI BERT empty, zero BMC memory events. All 22 installed modules train at full 5600 MT/s (1.385 TB, channels G+I vacant pending the two good spares). The 5-minute burn held 1273 GB (92%) resident, completing 1.48 billion verified operations with zero failures, zero OOM/swap; EDAC CE=0/UE=0, zero machine-checks. The 22 active modules are electrically healthy - each has now passed three 92%-residency burns today.",
+    "Two limitations keep this an interim configuration. (1) Bandwidth: asymmetric 11+11 channels remain degraded AND unstable - 314.2 GB/s on the protocol run (346.7 on a recheck) vs 425.0 GB/s on the previous boot with the same active channels, and 348.6 GB/s on kit 2's first install: 55-75% of the 567.5 GB/s baseline, varying boot-to-boot as the UMC interleave regroups. (2) Thermal: TEMP_P0_DIMM_J logged its second brief upper-critical excursion today (9 s at burn fault-in; self-cleared). Install the two good kit-2 spares in P0 CH-G / P1 CH-I, re-screen (expect ~570-580 GB/s), and RMA the removed pair."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["Remediation (phase B)", "Faulty pair removed; clean POST", "BERT empty; zero SEL memory events - first clean boot of the saga", "PASS"],
+      ["DIMM detection & training", "22/22 installed trained, full 5600 MT/s", "Channels G+I vacant pending good spares (asymmetric 11+11)", "PASS"],
+      ["Stability (5-min 100% burn)", "0 errors; 1273 GB resident (92%)", "stress-ng all patterns + verify; 1.48G ops; 0 OOM/swap", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE", "0 MCE during campaign; EDAC clean on both controllers", "PASS"],
+      ["Thermals", "TEMP_P0_DIMM_J excursion again", "9 s over upper-critical at burn fault-in (2nd today); self-cleared", "LIMITED"],
+      ["Memory bandwidth", "314-347 GB/s this boot (55-61%)", "Asymmetric interleave unstable: 425 GB/s on prior boot, same channels", "LIMITED"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDA200A2N-224", "hostname": "172.16.11.132"},
+    "cpu": {"model": "2x AMD EPYC 9135 (Zen 5 'Turin')", "sockets": 2, "cores_per_socket": 16, "threads": 64,
+            "base_ghz": 3.65, "boost_ghz": 4.3, "numa_nodes": 2, "isa": "AVX-512 (Zen 5); L3 128 MiB (8x 16 MiB CCD)"},
+    "memory": {"total": "1.385 TB (22x 64 GB; interim until 24/24 restored)", "type": "DDR5 RDIMM ECC (Samsung M321R8GA0PB0-CWMCJ)",
+               "dimms_populated": "22 of 24 - P0 CH-G and P1 CH-I vacant (faulty modules removed for RMA; good spares ...EEF450 + ...E03CB7 to be installed)",
+               "configured_speed": "5600 MT/s (all 22)", "rated_speed": "5600 MT/s",
+               "speed_status": "full module-rated speed; interim asymmetric 11+11 population degrades interleave",
+               "module_detail": "2R, 80-bit total width (64-bit data + 16-bit ECC), Synchronous Registered (Buffered); 20x kit-2 carryovers + 2 new (P0 CH-I, P1 CH-A)"},
+    "dimms": [
+      {"slot": "P0 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF49E", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03EBD", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03CB6", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF533", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1E2", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04755", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-G", "size": "-", "speed": "-", "vendor": "-", "part": "Vacant - faulty module removed (RMA)", "serial": "(label serial recorded at removal)", "rank_width": "-"},
+      {"slot": "P0 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04799", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF0151", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04546", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04972", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04754", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF008C", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479B", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479D", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03ECE", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09082", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04CC2", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03A8E", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09064", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-I", "size": "-", "speed": "-", "vendor": "-", "part": "Vacant - faulty module removed (RMA)", "serial": "(label serial recorded at removal)", "rank_width": "-"},
+      {"slot": "P1 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E048E1", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09061", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF0032", "rank_width": "2R / 80-bit"}
+    ],
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 314.2, "dimm_speed_mts": 5600, "rated_mts": 5600}
+  },
+  "spec_rows": [
+    {"metric": "DIMMs trained (% of 22 installed)", "measured": 22, "rated": 22, "unit": "DIMMs"},
+    {"metric": "DIMM speed (% of rated 5600)", "measured": 5600, "rated": 5600, "unit": "MT/s"},
+    {"metric": "CPU boost under load (% of rated 4300)", "measured": 4343, "rated": 4300, "unit": "MHz"},
+    {"metric": "RAM residency during burn (% of 1385 GB)", "measured": 1273, "rated": 1385, "unit": "GB"},
+    {"metric": "Aggregate stream (% of 24-DIMM baseline 567.5)", "measured": 314.2, "rated": 567.5, "unit": "GB/s"}
+  ],
+  "comparison": {
+    "servers": ["Phase B - pair removed (this boot)", "Phase A - pair present, mapped out"],
+    "metrics": [
+      {"name": "Aggregate stream (GB/s)", "a": 314.2, "b": 425.0, "fmt": "{:.1f}"},
+      {"name": "sysbench read 64T (GB/s)", "a": 211.7, "b": 220.1, "fmt": "{:.1f}"},
+      {"name": "sysbench write 64T (GB/s)", "a": 91.5, "b": 98.5, "fmt": "{:.1f}"},
+      {"name": "1-thread memcpy (GB/s)", "a": 23.0, "b": 23.2, "fmt": "{:.2f}"},
+      {"name": "NUMA-remote ratio (x)", "a": 1.59, "b": 1.52, "fmt": "{:.2f}"}
+    ],
+    "caption": "Identical 22 active modules and channels (G+I inactive), two consecutive boots - phase A with the faulty pair present-but-disabled, phase B with it physically removed.",
+    "notes": "Asymmetric 11+11 bandwidth is unstable boot-to-boot: the protocol stream run gave 314.2 GB/s this boot (346.7 on an immediate recheck) vs 425.0 GB/s the boot before with the SAME active channels, and 348.6 GB/s on kit 2's first install (C+L vacant) - a 55-75% spread of the 567.5 GB/s symmetric baseline with no configuration change to explain it; the UMC interleave grouping varies per boot in unsupported asymmetric layouts. sysbench read/write are consistent across the boots (~212-220 / ~92-99 GB/s). Conclusion: do not deploy asymmetric populations - performance is both degraded and unpredictable."
+  },
+  "sel_status": "Phase B campaign: +2 SEL entries (400 -> 402) - TEMP_P0_DIMM_J (0x1D) 'Upper Critical going high' asserted 11:40:03 during the burn's fault-in and deasserted 9 s later: the sensor's SECOND brief excursion today (first was 15 s during phase A's write benchmark). Removal session (389 -> 400): PSU AC-loss/chassis-intrusion artifacts at 11:29 and a clean 11:34/11:36 power-on with ZERO memory events - the first clean boot since kit 2 arrived. Phase A history: 'Memory Device Disabled' (CPU0+CPU1) on three consecutive boots (10:49, 10:56, 11:07).",
+  "dmesg_status": "Phase B boot: ACPI BERT empty - no error records ingested (phase A boots carried two FATAL records: 'Storage error in DRAM memory (0x40400) ... physical memory map-out event' at P0MG0/node0-card9 and P1MI0/node1-card6, the identical signature kit 2 produced this morning at P0MC0/P1ML0). During the phase B campaign: 0 machine-check events, AMD EDAC CE=0/UE=0 on both controllers, core clocks 3948-4343 MHz under load, swap untouched, no OOM-killer activity.",
+  "findings": [
+    "Phase A (FAIL): the two modules mapped out at P0 CH-G and P1 CH-I carried the identical BERT failure signature as kit 2's original pair, in slots that had trained other modules cleanly all day - module fault, not slot fault. Serial accounting (kit-2 good modules ...EEF450 and ...E03CB7 absent from the build; the disabled pair SPD-unreadable) shows the original unlabeled bad pair had been mistaken for good stock and reinstalled.",
+    "Phase B (remediated): with the faulty pair physically removed, the server produced its first clean POST of the kit-2 saga - BERT empty, zero SEL memory events. All 22 installed modules train at full 5600 MT/s; the burn completed 1,480,672,367 verified operations at 92% residency with zero errors, zero OOM, swap untouched, EDAC CE=0/UE=0, zero machine-checks. These 22 modules have now passed three 92% burns today - electrically qualified.",
+    "Bandwidth remains degraded and UNSTABLE in the interim asymmetric 11+11 layout: 314.2 GB/s protocol run and 346.7 GB/s recheck this boot, vs 425.0 GB/s the previous boot on identical active channels, vs 348.6 GB/s on kit 2's first install - 55-75% of the 567.5 GB/s symmetric baseline, varying with each boot's interleave grouping. sysbench read/write (211.7 / 91.5 GB/s) match the prior boot within 7%.",
+    "Thermal watch item: TEMP_P0_DIMM_J (module s/n ...E04546) logged its second brief upper-critical excursion today - 9 s at the burn's write-heavy fault-in (11:40:03), after 15 s during phase A's write benchmark; both self-cleared, post-test reading 49 C. The P1 J/K bank reads hottest after benches (61-63 C, sensors 'ok'). Both events occurred under asymmetric interleave hot-spotting; re-check under the restored symmetric configuration before pursuing hardware action.",
+    "Single-thread and NUMA behavior nominal throughout: 23.0 GB/s 1-thread memcpy; node0->node0 21.9 GiB/s vs node0->node1 13.8 GiB/s = 1.59x remote penalty.",
+    "Restore path validated by today's Run-3/Run-4 data: installing the two good kit-2 spares (...EEF450, ...E03CB7) into P0 CH-G / P1 CH-I restores symmetric 12+12 - expected ~567-581 GB/s and 1.5 TB."
+  ],
+  "recommendations": [
+    "RMA the two removed modules: attach their label serial numbers (recorded at removal - SPD was never electronically readable) to the RMA ticket with this report and the morning kit-2 report as evidence (fatal BERT 'storage error in DRAM' map-outs in four different slots across two installs). Keep them physically quarantined/marked.",
+    "Install kit-2's two good spares (s/n 80CE04254742EEF450, 80CE04254642E03CB7) into P0 CH-G and P1 CH-I and re-screen to close the remediation - expect ~570-580 GB/s aggregate and 1.5 TB.",
+    "Until the symmetric population is restored, treat the server as interim: do NOT deploy bandwidth-sensitive workloads (55-75% of baseline, unstable across reboots).",
+    "During the symmetric re-screen, watch TEMP_P0_DIMM_J (s/n ...E04546): if it excursions again with intact interleave, swap that module to a different slot to test whether the hot-spot follows the module, and inspect heatspreader/airflow at the P0 H-J bank.",
+    "Process improvement now in effect: failed DIMMs are labeled and quarantined at removal - maintain this practice; the unlabeled pair cost a full remediation cycle today."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["Remediation (2 phases)", "Phase A: bad pair reinstalled -> mapped out (FAIL). Phase B: pair removed -> first clean POST", "PASS"],
+      ["22 active modules (1.385 TB)", "Electrically qualified: 0 ECC, 0 MCE; three 92% burns passed today", "PASS"],
+      ["Memory bandwidth (interim)", "314-347 GB/s this boot; 55-75% of baseline across boots - degraded and unstable", "LIMITED"],
+      ["Thermals", "TEMP_P0_DIMM_J: two brief self-clearing excursions today; recheck under symmetric config", "LIMITED"],
+      ["Path to closure", "Fit good spares ...EEF450 + ...E03CB7 in P0 CH-G / P1 CH-I -> re-screen -> expect full PASS", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "Phase B: stress-ng --vm 64 --vm-bytes 1357207947673 (total; --vm-keep) --vm-method all --verify --timeout 300s -> 1273 GB resident (92%), 11:39:41-11:44:47 UTC. Phase A burn (bad pair present): 1272 GB, 1.476G ops, 11:13:23-11:18:29 UTC.",
+    "bandwidth": "stress-ng --stream 64 --stream-l3-size 256M (30 s): phase B 314.2 GB/s + 346.7 GB/s recheck (phase A: 425.0); sysbench memory 1 GiB blocks/thread, scope=local, 64T: read 211.7 / write 91.5 GB/s; mbw -n 3 1024 (1T) -> 23.0 GB/s",
+    "numa": "numactl --cpunodebind=0 --membind={0,1} mbw -n 2 2048 -> 21.9 vs 13.8 GiB/s memcpy = 1.59x remote penalty",
+    "evidence": "dmidecode -t 17 (22/24, G+I vacant); ipmitool sel list (phase A: Memory Device Disabled x3 boots; phase B: clean); dmesg BERT (phase A: P0MG0+P1MI0 fatal records; phase B: empty); ipmitool sdr (DIMM temps)",
+    "edac": "AMD EDAC (2 UMC controllers); ce_count + ue_count diffed pre/post both phases; SEL info diffed (phase B: 400 -> 402, both the DIMM-J temperature excursion)",
+    "cpu_freq": "/proc/cpuinfo MHz sampled every 20 s during the burns (phase B peak 4342.8 MHz); turbostat post-check (Bzy_MHz 2266, 221 W package)",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic",
+    "campaign_window": "11 Jun 2026 11:12-11:47 UTC (phase A 7m52s + removal + phase B 7m08s)",
+    "note": "Sixth and seventh same-day campaigns on this box; comparison numbers from today's Runs 1-4. This report supersedes the phase-A-only version."
+  }
+}

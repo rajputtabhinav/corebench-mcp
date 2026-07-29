@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "report_title": "20-Minute Memory Validation & Benchmark Report",
+    "subtitle": "Replacement kit: 22 of 24x Samsung 64 GB DDR5-5600 active (1.385 TB) - Tyrone MDA200A2N-224",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.132",
+    "server_ip": "172.16.11.132",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T, Zen 5 Turin)",
+    "tier": "screening (post-install revalidation)",
+    "window": "11 Jun 2026 09:08-09:17 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-11",
+    "status": "FAIL (AS INSTALLED)"
+  },
+  "executive_summary": [
+    "Post-install revalidation of a replacement DIMM kit in server 172.16.11.132 (Tyrone MDA200A2N-224, dual AMD EPYC 9135). The kit is a complete physical swap - zero serial overlap with this morning's 24-module set. Result: only 22 of 24 modules train. BIOS maps out the modules in P0 CHANNEL C and P1 CHANNEL L on every boot: ACPI BERT carries fatal 'Storage error in DRAM memory - physical memory map-out event' records for locators P0MC0 and P1ML0, and the BMC SEL asserts 'Memory Device Disabled' (CPU0 + CPU1) on all three post-swap boots. Usable capacity is 1.385 TB instead of 1.5 TB.",
+    "The 22 active modules are electrically healthy: the 5-minute 100% burn held 1272 GB (92% of RAM) resident across 64 verify-mode workers (1.47 billion operations) with zero errors, zero OOM/swap, EDAC CE=0/UE=0, zero machine-checks and zero new SEL entries during the campaign; cores held full boost (peak 4342 MHz vs 4300 rated).",
+    "However, the asymmetric 11+11-channel population cripples aggregate bandwidth: 348.6 GB/s vs 581.1 GB/s on the 24-DIMM baseline measured this morning (-40%); DRAM-bound sysbench read/write drop 42%/56%. Single-thread memcpy (22.8 GB/s) and the NUMA-remote ratio (1.62x) are unaffected, isolating the regression to interleave geometry, not module speed or fabric health. Verdict: FAIL as installed - reseat/replace the two mapped-out modules and re-screen before deployment."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["DIMM detection & training", "22 of 24 trained; 2 mapped out", "BERT fatal DRAM storage error at POST: P0 CH-C + P1 CH-L", "FAIL"],
+      ["Stability (5-min 100% burn)", "0 errors; 1272 GB resident (92%)", "stress-ng all patterns + verify; 1.47G ops; 0 OOM/swap", "PASS"],
+      ["ECC integrity (22 active)", "0 CE / 0 UE; SEL 323 -> 323", "0 MCE during campaign; EDAC clean on both controllers", "PASS"],
+      ["CPU frequency", "4342 MHz peak under load", "At rated 4.3 GHz boost; no throttle in window", "PASS"],
+      ["Memory bandwidth", "348.6 GB/s aggregate (-40%)", "11+11-ch asymmetric interleave vs 581.1 GB/s 24-DIMM baseline", "FAIL"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDA200A2N-224", "hostname": "172.16.11.132"},
+    "cpu": {"model": "2x AMD EPYC 9135 (Zen 5 'Turin')", "sockets": 2, "cores_per_socket": 16, "threads": 64,
+            "base_ghz": 3.65, "boost_ghz": 4.3, "numa_nodes": 2, "isa": "AVX-512 (Zen 5); L3 128 MiB (8x 16 MiB CCD)"},
+    "memory": {"total": "1.385 TB usable (22x 64 GB active; 2 modules mapped out)", "type": "DDR5 RDIMM ECC (Samsung M321R8GA0PB0-CWMCJ)",
+               "dimms_populated": "22 of 24 trained - P0 CH-C and P1 CH-L BIOS-disabled at POST (11+11 channels active)",
+               "configured_speed": "5600 MT/s (all 22 active)", "rated_speed": "5600 MT/s",
+               "speed_status": "active modules at full module-rated speed; population asymmetry degrades interleave",
+               "module_detail": "2R, 80-bit total width (64-bit data + 16-bit ECC), Synchronous Registered (Buffered)"},
+    "dimms": [
+      {"slot": "P0 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479B", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09061", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-C", "size": "-", "speed": "-", "vendor": "-", "part": "BIOS-disabled at POST", "serial": "(SPD not readable - mapped out)", "rank_width": "-"},
+      {"slot": "P0 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E048E1", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09064", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03A8E", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E0479D", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03ECE", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E09082", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04CC2", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04755", "rank_width": "2R / 80-bit"},
+      {"slot": "P0 CH-L", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EF0032", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-A", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03EBD", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-B", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03CB6", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-C", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF49E", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-D", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF533", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-E", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF1E2", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-F", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254742EEF450", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-G", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04799", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-H", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E03CB7", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-I", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04546", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-J", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04972", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-K", "size": "64 GB", "speed": 5600, "vendor": "Samsung", "part": "M321R8GA0PB0-CWMCJ", "serial": "80CE04254642E04754", "rank_width": "2R / 80-bit"},
+      {"slot": "P1 CH-L", "size": "-", "speed": "-", "vendor": "-", "part": "BIOS-disabled at POST", "serial": "(SPD not readable - mapped out)", "rank_width": "-"}
+    ],
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 348.6, "dimm_speed_mts": 5600, "rated_mts": 5600}
+  },
+  "spec_rows": [
+    {"metric": "DIMMs trained (% of 24 installed)", "measured": 22, "rated": 24, "unit": "DIMMs"},
+    {"metric": "DIMM speed (% of rated 5600)", "measured": 5600, "rated": 5600, "unit": "MT/s"},
+    {"metric": "CPU boost under load (% of rated 4300)", "measured": 4342, "rated": 4300, "unit": "MHz"},
+    {"metric": "RAM residency during burn (% of 1385 GB)", "measured": 1272, "rated": 1385, "unit": "GB"},
+    {"metric": "Aggregate stream (% of 24-DIMM baseline 581)", "measured": 348.6, "rated": 581.1, "unit": "GB/s"}
+  ],
+  "comparison": {
+    "servers": ["Run 2 - now (22x 64 GB, 11+11 ch)", "Run 1 - today 06:47 (24x 64 GB, 12+12 ch)"],
+    "metrics": [
+      {"name": "Active DIMMs", "a": 22, "b": 24, "fmt": "{:.0f}"},
+      {"name": "Aggregate stream (GB/s)", "a": 348.6, "b": 581.1, "fmt": "{:.1f}"},
+      {"name": "sysbench read 64T (GB/s)", "a": 206.8, "b": 355.3, "fmt": "{:.1f}"},
+      {"name": "1-thread memcpy (GB/s)", "a": 22.8, "b": 23.8, "fmt": "{:.2f}"},
+      {"name": "NUMA-remote ratio (x)", "a": 1.62, "b": 1.6, "fmt": "{:.2f}"}
+    ],
+    "caption": "Same server, same day, same tooling - only the DIMM kit changed (complete swap, zero serial overlap).",
+    "notes": "Losing one channel per socket leaves an asymmetric 11+11-channel population: the EPYC UMC interleave falls back to a degraded geometry costing ~40% aggregate bandwidth (348.6 vs 581.1 GB/s) and 42-56% on DRAM-bound sysbench, while single-thread memcpy (-4%) and the NUMA-remote ratio (1.62x vs 1.60x) stay normal - proof the regression is interleave geometry, not module speed, thermal or fabric health. Usable capacity drops 1.5 TB -> 1.385 TB."
+  },
+  "sel_status": "BMC SEL: 0 new entries during the campaign (323 before and after). The 44 entries added between Run 1 and Run 2 (279 -> 323) document the swap session: PSU AC-loss/presence and chassis-intrusion artifacts at 08:33/08:48/08:57 (benign - AC pulled during physical work), three boots, and 'Memory Device Disabled' asserted for CPU0 + CPU1 on every boot (08:45:13, 08:53:10, 09:02:54).",
+  "dmesg_status": "ACPI BERT (firmware-first) carries two FATAL memory error records from POST: 'Storage error in DRAM memory (0x40400) ... error_type 15, physical memory map-out event' at locator P0MC0 (node 0, card 0) and locator P1ML0 (node 1, card 8) - firmware mapped both modules out before OS handoff. During the campaign itself: 0 machine-check events, AMD EDAC CE=0/UE=0 on both controllers, core clocks 4107-4342 MHz under load, swap untouched, no OOM-killer activity.",
+  "findings": [
+    "Two of the 24 replacement modules fail DRAM training and are mapped out by firmware on every boot. Evidence chain: dmidecode shows no SPD data for P0 CHANNEL C and P1 CHANNEL L; BMC SEL asserts 'Memory Device Disabled' (CPU0 + CPU1) on all three post-swap boots; ACPI BERT records fatal 'Storage error in DRAM memory - physical memory map-out event' at locators P0MC0 and P1ML0. Usable memory drops to 1.385 TB (22x 64 GB), one channel lost per socket.",
+    "Aggregate bandwidth collapses 40% as installed: 348.6 GB/s vs the 581.1 GB/s 24-DIMM baseline measured this morning with identical tooling. DRAM-bound sysbench drops 42% (read, 206.8 GB/s) and 56% (write, 90.8 GB/s). The asymmetric 11+11-channel population forces the EPYC UMC interleave into a degraded geometry - the penalty far exceeds the 8% capacity loss.",
+    "The regression is isolated to interleave geometry: single-thread memcpy is unchanged (22.8 vs 23.8 GB/s), the NUMA-remote ratio is unchanged (1.62x vs 1.60x), all 22 active modules train at full 5600 MT/s, and cores held 4107-4342 MHz under load - ruling out module speed, fabric, thermal and clock causes.",
+    "The 22 active modules are electrically healthy: 5-minute 100% burn at 1272 GB resident (92% of usable RAM), stress-ng full pattern sweep with --verify completed 1,473,163,606 operations - zero verification failures, zero OOM, swap untouched; EDAC CE=0/UE=0; zero machine-checks; zero new SEL entries during the campaign.",
+    "Kit identity recorded for traceability: complete physical swap - zero serial overlap with the Run-1 set. 17 modules from lot family 80CE04254642E0xxxx, 5 from newer lot 80CE04254742EE/EFxxxx; all Samsung M321R8GA0PB0-CWMCJ, 2R, 80-bit (64+16 ECC). Full slot-by-slot map incl. the two disabled positions in the Hardware Inventory section. The mapped-out modules' serials are not electronically readable - record them from the label during reseat.",
+    "The PSU 'Failure detected' and chassis-intrusion SEL entries between 08:33 and 08:57 are maintenance artifacts (AC pulled while the chassis was open for the swap); both supplies re-asserted presence on every power-up and the post-test package power (187 W idle) is normal."
+  ],
+  "recommendations": [
+    "Reseat the modules in P0 CHANNEL C and P1 CHANNEL L and re-run this 20-minute screen. If either position still maps out, swap that module with a known-good neighbour to isolate module vs slot: fault follows module -> RMA the module (BERT 'storage error in DRAM' is a module-internal failure signature); fault stays with slot -> board-level action.",
+    "Do NOT deploy this configuration for bandwidth-sensitive workloads: -40% aggregate bandwidth as installed. Restoring 12+12 symmetric channels should return ~581 GB/s (today's 24-DIMM baseline on this exact box).",
+    "Record the two failed modules' label serials during the reseat (SPD is not electronically readable while mapped out) and keep both per-module serial maps (Run 1 + Run 2 reports) for RMA paperwork.",
+    "If a module must be permanently removed, prefer a SYMMETRIC reduced population per AMD population rules over an asymmetric 11+11 layout - asymmetry is what destroys interleaving.",
+    "Install rasdaemon and enable BIOS patrol scrub before production so any future in-service DIMM degradation is logged per-DIMM between validation campaigns."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["Replacement kit as installed", "2 of 24 modules fail DRAM training (P0 CH-C, P1 CH-L) - firmware map-out on every boot", "FAIL"],
+      ["22 active modules (1.385 TB)", "Electrically clean: 0 ECC, 0 MCE, 0 new SEL; 92% residency burn; full 5600 MT/s", "PASS"],
+      ["Memory bandwidth (as installed)", "348.6 GB/s aggregate = -40% vs 24-DIMM baseline; asymmetric 11+11-ch interleave", "FAIL"],
+      ["Remediation", "Reseat/replace 2 modules -> re-screen; expect ~581 GB/s and 1.5 TB restored", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --vm-bytes 1357215778242 (total, split across workers; --vm-keep) --vm-method all --verify --timeout 300s -> 1272 GB resident (92%) for the full window (09:10:13-09:15:19 UTC)",
+    "bandwidth": "stress-ng --stream 64 --stream-l3-size 256M (30 s) -> 348.6 GB/s; sysbench memory 1 GiB blocks/thread, scope=local, 64T: read 206.8 / write 90.8 GB/s; mbw -n 3 1024 (1T) -> 22.8 GB/s",
+    "numa": "numactl --cpunodebind=0 --membind={0,1} mbw -n 2 2048 -> 22.3 vs 13.7 GiB/s memcpy = 1.62x remote penalty",
+    "evidence": "dmidecode -t 17 (2 slots SPD-less); ipmitool sel list (Memory Device Disabled x3 boots); dmesg ACPI BERT fatal records (P0MC0, P1ML0 'physical memory map-out event')",
+    "edac": "AMD EDAC (2 UMC controllers); ce_count + ue_count diffed pre/post; SEL info diffed (323 -> 323)",
+    "cpu_freq": "/proc/cpuinfo MHz sampled every 20 s during the burn (peak 4342.0 MHz); turbostat post-check (Bzy_MHz 3162, 187 W package)",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-124-generic",
+    "campaign_window": "11 Jun 2026 09:08-09:17 UTC (8m 22s)",
+    "note": "Identical tooling and methodology to today's Run-1 24-DIMM baseline report on this server; comparison numbers taken from that run."
+  }
+}

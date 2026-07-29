@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "report_title": "NVMe SSD Validation Report",
+    "subtitle": "4x Samsung PM9D3a - Cross-Server Comparison vs 172.16.13.217",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "user-Dev",
+    "server_ip": "172.16.15.38",
+    "platform": "Tyrone MDI300 / 2x Intel Xeon 6730P (64C/128T), 1.0 TB DDR5",
+    "tier": "qualification",
+    "window": "04 Jun 2026 06:15-06:39 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-04",
+    "status": "PASS WITH LIMITATIONS"
+  },
+  "executive_summary": [
+    "Re-validation of the four Samsung PM9D3a NVMe SSDs previously tested on the MDA200A2N-224 at 172.16.13.217, now installed in server 172.16.15.38 (Tyrone MDI300, hostname user-Dev; 2x Intel Xeon 6730P, 64C/128T, 1.0 TB DDR5). Serial numbers confirm these are the same physical drives: two 960 GB M.2 and two 15.36 TB U.2. The move directly tests whether the PCIe link issues seen on .217 follow the drives or the slots.",
+    "All four drives passed a NUMA-pinned fio 3.28 suite with zero media errors. The 960 GB drives' sequential read doubled (1.87 -> 3.76 GB/s) and random read nearly doubled (443K -> 852K IOPS) simply by moving to .38 - proving the Gen3 speed cap was a .217 slot/BIOS limitation, now resolved (Gen4). The link still trains at x2 width on both servers, so half-width follows the drives and still leaves ~50% of Gen4 bandwidth unused.",
+    "One 15.36 TB drive (S7RKNG0YB01786) was found dead at idle from an APST power-state controller-down fault; an in-place PCIe hot-rescan recovered it to full Gen5 x4 and it completed the entire suite under load. It is electrically sound but needs the APST mitigation before production."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["15.36 TB U.2 (Gen5 x4)", "12.0 / 12.5 GB/s read, ~1.5M IOPS", "On par with .217; full Gen5 x4, 7.05 GB/s write", "PASS"],
+      ["960 GB M.2 (Gen4 link)", "3.76 GB/s read, 852K IOPS", "2x faster than .217 (Gen4 vs Gen3 link fix)", "PASS"],
+      ["960 GB M.2 link width", "Gen4 x2 (half width)", "x4 capable; ~50% of Gen4 bandwidth left on the table", "LIMITED"],
+      ["Drive S7RKNG0YB01786", "Recovered from APST controller-down", "Ran full load OK; needs APST fix before production", "ACTION"],
+      ["SMART health (all 4)", "0 media errors, 0% wear, <=46 C", "No thermal throttling", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDI300", "chassis": "2U", "hostname": "user-Dev", "serial": "n/a"},
+    "cpu": {"model": "2x Intel Xeon 6730P", "sockets": 2, "cores_per_socket": 32, "threads": 128,
+            "numa_nodes": 2, "numa_device_map": "all 4 NVMe slots on node 0 (CPUs 0-31, 64-95)"},
+    "memory": {"total": "1.0 TB", "type": "DDR5"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-111-generic",
+               "cmdline": "(recommended) nvme_core.default_ps_max_latency_us=0 pcie_aspm=off pcie_port_pm=off"},
+    "storage": [
+      {"dev": "/dev/nvme0n1", "label": "nvme0", "model": "Samsung PM9D3a", "pn": "MZVL6960HFLB-01AW7", "form": "M.2 22x80", "capacity": "960 GB", "serial": "S8CDNG0YC00174", "link": "Gen4 x2", "link_capable": "Gen4 x4"},
+      {"dev": "/dev/nvme1n1", "label": "nvme1", "model": "Samsung PM9D3a", "pn": "MZVL6960HFLB-01AW7", "form": "M.2 22x80", "capacity": "960 GB", "serial": "S8CDNG0YC00153", "link": "Gen4 x2", "link_capable": "Gen4 x4"},
+      {"dev": "/dev/nvme2n1", "label": "nvme2", "model": "Samsung PM9D3a", "pn": "MZWL615THBLF-00AW7", "form": "U.2 2.5in", "capacity": "15.36 TB", "serial": "S7RKNG0YB01786", "link": "Gen5 x4 (recovered)", "link_capable": "Gen5 x4"},
+      {"dev": "/dev/nvme3n1", "label": "nvme3", "model": "Samsung PM9D3a", "pn": "MZWL615THBLF-00AW7", "form": "U.2 2.5in", "capacity": "15.36 TB", "serial": "S7RKNG0YB01763", "link": "Gen5 x4", "link_capable": "Gen5 x4"}
+    ]
+  },
+  "benchmarks": {
+    "storage": [
+      {"dev": "/dev/nvme0n1", "label": "nvme0 (960G)", "model": "Samsung PM9D3a", "form": "M.2", "serial": "S8CDNG0YC00174",
+       "link": "Gen4 x2", "seq_read_gbs": 3.76, "seq_write_gbs": 1.62, "rand_read_iops": 852199, "rand_write_iops": 395548,
+       "qd1_read_us": 71.9, "qd1_write_us": 21.4, "link_capable_gbs": 7.88, "link_negotiated_gbs": 3.94,
+       "link_width_warn": "Gen4 x2 negotiated, x4 capable -- ~50% of link bandwidth"},
+      {"dev": "/dev/nvme1n1", "label": "nvme1 (960G)", "model": "Samsung PM9D3a", "form": "M.2", "serial": "S8CDNG0YC00153",
+       "link": "Gen4 x2", "seq_read_gbs": 3.76, "seq_write_gbs": 1.62, "rand_read_iops": 853654, "rand_write_iops": 395548,
+       "qd1_read_us": 73.4, "qd1_write_us": 20.7, "link_capable_gbs": 7.88, "link_negotiated_gbs": 3.94,
+       "link_width_warn": "Gen4 x2 negotiated, x4 capable -- ~50% of link bandwidth"},
+      {"dev": "/dev/nvme2n1", "label": "nvme2 (15.36T)", "model": "Samsung PM9D3a", "form": "U.2", "serial": "S7RKNG0YB01786",
+       "link": "Gen5 x4", "seq_read_gbs": 12.02, "seq_write_gbs": 7.05, "rand_read_iops": 1510741, "rand_write_iops": 1586942,
+       "qd1_read_us": 76.6, "qd1_write_us": 14.5, "link_capable_gbs": 15.75, "link_negotiated_gbs": 15.75, "link_width_warn": null},
+      {"dev": "/dev/nvme3n1", "label": "nvme3 (15.36T)", "model": "Samsung PM9D3a", "form": "U.2", "serial": "S7RKNG0YB01763",
+       "link": "Gen5 x4", "seq_read_gbs": 12.48, "seq_write_gbs": 7.05, "rand_read_iops": 1554033, "rand_write_iops": 1629988,
+       "qd1_read_us": 76.8, "qd1_write_us": 14.4, "link_capable_gbs": 15.75, "link_negotiated_gbs": 15.75, "link_width_warn": null}
+    ]
+  },
+  "comparison": {
+    "servers": ["172.16.13.217 (MDA200, Gen3 slot)", "172.16.15.38 (MDI300, Gen4 slot)"],
+    "metrics": [
+      {"name": "960 GB Seq Read GB/s", "a": 1.87, "b": 3.76, "fmt": "{:.2f}"},
+      {"name": "960 GB Rand Read IOPS", "a": 443237, "b": 852199, "fmt": "{:,.0f}"},
+      {"name": "15.36 TB Seq Read GB/s", "a": 12.22, "b": 12.48, "fmt": "{:.2f}"},
+      {"name": "15.36 TB Rand Read IOPS", "a": 1760240, "b": 1554033, "fmt": "{:,.0f}"}
+    ],
+    "caption": "Same four PM9D3a drives across two servers. The 960 GB read scales with link generation (Gen3 -> Gen4); the 15.36 TB Gen5 pair is consistent within run variance.",
+    "notes": "960 GB read throughput doubled purely because the MDI300 trains the link at Gen4 (16 GT/s) where the MDA200 was stuck at Gen3 (8 GT/s) -- a .217 platform/slot fault, not the drives. Both servers still negotiate only x2 width, so ~half of a true Gen4 x4 link is unused. 960 GB write is NAND-bound and unchanged by the faster link."
+  },
+  "health": {
+    "header": ["Drive", "Link", "Temp pre->post", "Wear", "Media errors", "Verdict"],
+    "rows": [
+      ["nvme0n1 (960 GB)", "Gen4 x2", "35->41 C", "0%", "0", "PASS"],
+      ["nvme1n1 (960 GB)", "Gen4 x2", "38->46 C", "0%", "0", "PASS"],
+      ["nvme2n1 (15.36 TB, recovered)", "Gen5 x4", "35->45 C", "0%", "0", "PASS"],
+      ["nvme3n1 (15.36 TB)", "Gen5 x4", "34->43 C", "0%", "0", "PASS"]
+    ]
+  },
+  "dmesg_status": "nvme2n1 (S7RKNG0YB01786) reported controller-down at idle (CSTS=0xffffffff, PCI_STATUS=0x10) ~99 min after boot; auto-reset failed (-19) and the device was disabled. Root cause: APST power-state bug (kernel recommended nvme_core.default_ps_max_latency_us=0 / pcie_aspm=off). Recovered in place via PCIe hot remove + bus rescan to full Gen5 x4; passed the full fio suite under load with no further drops.",
+  "findings": [
+    "All four PM9D3a drives are healthy and performant: 0 media errors, 0% wear, clean thermals. The 15.36 TB U.2 pair delivers full Gen5 x4 (~12 GB/s read, 7 GB/s write, ~1.5M IOPS).",
+    "The .217 Gen3 cap was a slot fault, now resolved: the 960 GB drives read 2x faster on .38 (Gen4 vs Gen3). Their write path is NAND-bound (~1.62 GB/s) and unchanged by the faster link.",
+    "The x2 lane-width limit follows the drives: both servers train these M.2 units at x2, leaving ~50% of Gen4 x4 bandwidth unused.",
+    "Drive S7RKNG0YB01786 has an APST idle-stability defect: electrically sound under load, but drops off the bus at idle until power-state transitions are disabled."
+  ],
+  "recommendations": [
+    "Apply the APST mitigation (priority): boot .38 with nvme_core.default_ps_max_latency_us=0 pcie_aspm=off pcie_port_pm=off (or update PM9D3a firmware), then idle-soak S7RKNG0YB01786 for several hours to confirm it no longer drops. Do not deploy this drive until verified.",
+    "Unlock x4 width for the 960 GB M.2 drives: move them to M.2 slots wired x4 (or check board lane bifurcation); a true Gen4 x4 link should roughly double sequential read again to ~7 GB/s.",
+    "Consider 4K LBA format: all drives are 512-byte; reformat the PM9D3a units to 4096-byte LBA before deployment for best efficiency.",
+    "Monitor in production: enable smartd / nvme-cli alerting for temperature, media errors and controller-down events."
+  ],
+  "conclusion": {
+    "header": ["Device", "Outcome", "Verdict"],
+    "rows": [
+      ["2x PM9D3a 15.36 TB U.2 (nvme2 + nvme3)", "Full Gen5 x4 performance and health", "PASS"],
+      ["nvme2 APST stability (S7RKNG0YB01786)", "Recovered; apply APST mitigation + idle-soak before production", "ACTION"],
+      ["2x PM9D3a 960 GB M.2 (nvme0 / nvme1)", "Healthy; 2x faster than .217 (Gen4). Still x2 width -- move to an x4 slot", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "fio": "fio 3.28",
+    "distro": "Ubuntu 22.04.4 LTS",
+    "kernel": "Linux 6.8.0-111-generic",
+    "methodology": "ioengine=libaio, direct=1 (raw block device), numactl node0 pinning, drives run sequentially",
+    "campaign_window": "04 Jun 2026 06:15-06:39 UTC",
+    "recommended_cmdline": "nvme_core.default_ps_max_latency_us=0 pcie_aspm=off pcie_port_pm=off",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

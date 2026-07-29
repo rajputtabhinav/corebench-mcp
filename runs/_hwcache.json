@@ -1,0 +1,10 @@
+{
+  "system": {"vendor":"n/a","model":"n/a","board":"n/a","chassis":"n/a","hostname":"Asus","serial":"n/a"},
+  "cpu": {"model":"AMD Ryzen 3 7320U with Radeon Graphics","sockets":"n/a","cores_per_socket":"n/a","threads":"n/a","numa_nodes":"n/a","base_mhz":"n/a","max_mhz":"n/a","isa":"avx2","numa_device_map":"n/a"},
+  "memory": {"total":"7 GB","type":"n/a","dimms_populated":"n/a","configured_speed":"n/a","rated_speed":"n/a","speed_status":"n/a"},
+  "bios": {"version":"n/a","date":"n/a","power_profile":"n/a","c_states":"n/a","numa_nps":"n/a","pcie_aspm":"n/a","m2_bifurcation":"n/a"},
+  "bmc": {"firmware":"n/a","psu_model":"n/a","psu_watts":"n/a","redundancy":"n/a","telemetry_source":"n/a"},
+  "kernel": {"distro":"n/a","kernel":"3.6.4-b9f03e96.x86_64","governor":"n/a","tuned_profile":"n/a","cmdline":"n/a"},
+  "storage": [],
+  "network": []
+}

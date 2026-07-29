@@ -1,0 +1,32 @@
+{
+  "fio version": "fio-3.36",
+  "global options": { "ioengine": "libaio", "direct": "1", "bs": "4k", "iodepth": "128" },
+  "jobs": [
+    {
+      "jobname": "randread",
+      "read": {
+        "io_bytes": 320000000000,
+        "bw": 6542968,
+        "bw_bytes": 6700000000,
+        "iops": 1270000.4,
+        "runtime": 60000,
+        "clat_ns": {
+          "min": 12000,
+          "max": 1100000,
+          "mean": 98000.5,
+          "stddev": 24000.0,
+          "percentile": {
+            "1.000000": 30000,
+            "50.000000": 90000,
+            "99.000000": 98000,
+            "99.900000": 142000,
+            "99.990000": 210000,
+            "99.999000": 480000
+          }
+        }
+      },
+      "write": { "io_bytes": 0, "bw": 0, "bw_bytes": 0, "iops": 0.0,
+                 "clat_ns": { "min": 0, "max": 0, "mean": 0.0, "percentile": {} } }
+    }
+  ]
+}

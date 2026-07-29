@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "report_title": "25G NIC Bonding - Validation & Performance Report",
+    "subtitle": "Dual-port 25GbE bonding: Server A (172.16.12.131) <-> Server B (172.16.13.108)",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.12.131 <-> 172.16.13.108",
+    "server_ip": "172.16.12.131",
+    "platform": "Server A: AMD EPYC 9124 (251 GiB)  /  Server B: AMD EPYC 9745 (1.5 TiB) -- back-to-back",
+    "tier": "qualification",
+    "window": "28 May 2026",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-05-28",
+    "status": "PASS WITH PLATFORM LIMITATIONS"
+  },
+  "executive_summary": [
+    "Validation and benchmark of dual-port 25G NIC performance with and without NIC bonding (link aggregation) between two servers, back-to-back over SFP28 25G-SR fibre (no switch) with jumbo frames. Throughput from iperf3, latency from qperf/ping, across single-link and bonded configurations (balance-rr and balance-xor).",
+    "A single 25G link is healthy: ~24 Gb/s (B->A), ~17 Gb/s (A->B), ~18 us latency, near-zero loss with jumbo frames. There is a consistent directional asymmetry (receive-path / CPU contention on the busy Kubernetes node A).",
+    "Bonding did not cleanly double throughput - but the cause is the host platform, not the NIC: one of Server A's 25G cards sits in a PCIe x4 slot (31.5 Gb/s) and the only stable two-link bond forced both A ports onto that card, capping aggregate ~31 Gb/s and causing RX loss on B->A; several inter-server fibre links were also marginal (RS-FEC off, mixed optics). balance-rr is unsuitable for TCP (heavy reordering)."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["NIC health", "Both 25G NICs link at 25 Gb/s", "Jumbo frames stable, 0% packet loss", "PASS"],
+      ["Single-link performance", "Up to ~24 Gb/s, ~18 us latency", "Near-zero loss with jumbo frames", "PASS"],
+      ["Bonding (functional)", "Bond forms & carries traffic", "Both modes (balance-rr, balance-xor)", "PASS"],
+      ["Bonding (aggregation)", "~22 Gb/s best (balance-xor, 16 flows)", "Capped by host PCIe x4 slot + marginal optics (not a NIC fault)", "LIMITED"],
+      ["Recommended mode", "balance-xor / 802.3ad (L3+4)", "Avoid balance-rr (TCP reordering)", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "Two-server back-to-back", "hostname": "A 172.16.12.131 / B 172.16.13.108"},
+    "cpu": {"model": "Server A: AMD EPYC 9124 (16C/64T)  |  Server B: AMD EPYC 9745 (128C/512T)", "sockets": 2},
+    "memory": {"total": "Server A 251 GiB  |  Server B 1.5 TiB", "type": "DDR5"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "5.15.0 (A -179-generic, B -94-generic)"},
+    "network": [
+      {"iface": "A NIC1 @ 81:00", "model": "Broadcom BCM57414 NetXtreme-E", "speed": "25 Gb/s (PCIe x4, 31.5 Gb/s slot)", "driver": "bnxt_en"},
+      {"iface": "A NIC2 @ c1:00", "model": "Broadcom BCM57414 NetXtreme-E", "speed": "25 Gb/s (PCIe x8)", "driver": "bnxt_en"},
+      {"iface": "B NIC1 @ 61:00", "model": "Broadcom BCM57414 NetXtreme-E", "speed": "25 Gb/s (PCIe x8)", "driver": "bnxt_en"},
+      {"iface": "B NIC2 @ 91:00", "model": "Broadcom BCM57414 NetXtreme-E", "speed": "25 Gb/s (PCIe x8)", "driver": "bnxt_en"}
+    ]
+  },
+  "benchmarks": {
+    "network": {
+      "tcp_rx_gbps": 24.2, "tcp_tx_gbps": 17.5, "tcp_bidir_gbps": 32.0, "tcp_multistream_gbps": 22.2,
+      "mtu": 9000, "pfc": "n/a (back-to-back; RS-FEC off)", "ecn": "n/a",
+      "rdma_link": "n/a (TCP/qperf)", "peer": "172.16.13.108",
+      "fabric": "direct back-to-back 25G-SR fibre (no switch)"
+    }
+  },
+  "spec_rows": [
+    {"metric": "Single link B->A (% of 25G)", "measured": 24.2, "rated": 25, "unit": "Gb/s"},
+    {"metric": "Single link A->B (% of 25G)", "measured": 17.5, "rated": 25, "unit": "Gb/s"},
+    {"metric": "Bond aggregate best (% of 2x25G)", "measured": 22.2, "rated": 50, "unit": "Gb/s"}
+  ],
+  "comparison": {
+    "servers": ["A -> B", "B -> A"],
+    "metrics": [
+      {"name": "Single link, 8-stream (Gb/s)", "a": 17.5, "b": 24.2, "fmt": "{:.1f}"},
+      {"name": "balance-rr, 8-stream (Gb/s)", "a": 17.4, "b": 25.5, "fmt": "{:.1f}"},
+      {"name": "balance-xor, best (Gb/s)", "a": 22.2, "b": 15.2, "fmt": "{:.1f}"}
+    ],
+    "caption": "Directional throughput across configurations (iperf3, MTU 9000).",
+    "notes": "B->A leads on a single link, but bonded B->A degrades because both of Server A's bonded ports share one PCIe x4 slot (RX-side loss). Latency: single-link 18 us (qperf TCP) / 0.45 ms ping; under bond 24 us / 0.52 ms."
+  },
+  "dmesg_status": "balance-rr produced tens of thousands of TCP retransmissions (packet reordering) -- unsuitable for TCP. Repeated bond reconfiguration stressed the bnxt_en driver and briefly hung Server B's network stack (self-recovered, no reboot).",
+  "findings": [
+    "A single 25G link is healthy: ~24 Gb/s (B->A), ~17 Gb/s (A->B), ~18 us latency, near-zero loss with jumbo frames.",
+    "Directional asymmetry: A->B consistently ~17 Gb/s vs B->A ~24 Gb/s per link (receive-path / CPU contention on the busy Kubernetes node A).",
+    "Bonding did not cleanly double throughput due to host constraints: (a) one of Server A's 25G cards is in a PCIe x4 slot (31.5 Gb/s) and the only stable two-link bond forced both A ports onto it -- capping ~31G and causing RX loss on B->A; (b) several inter-server fibre links were marginal (RS-FEC off, mixed optics).",
+    "balance-rr (round-robin) is unsuitable for TCP -- heavy reordering and tens of thousands of retransmissions with no real gain.",
+    "Repeated bond reconfiguration stressed the bnxt driver and briefly hung Server B's network stack (self-recovered, no reboot)."
+  ],
+  "recommendations": [
+    "Move Server A's 25G card from the PCIe x4 slot into an x8 slot (or bond one port per card across two x8 cards) -- the single biggest blocker to real 2x25G aggregation.",
+    "Use matching 25G-SR optics on both ends of every link, clean/reseat the LC connectors, and enable RS-FEC (ethtool --set-fec <dev> encoding rs).",
+    "For production bonding, prefer 802.3ad (LACP) via a switch over back-to-back, and persist the configuration in netplan once links are stable.",
+    "Use balance-xor or 802.3ad (flow hashing) for TCP -- never balance-rr.",
+    "Expected after the above: ~45-48 Gb/s multi-flow aggregate on a 2x25G bond."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["NIC health", "Both 25G NICs link at 25 Gb/s; jumbo stable, 0% loss", "PASS"],
+      ["Single-link performance", "Up to ~24 Gb/s, ~18 us latency", "PASS"],
+      ["Bonding (functional)", "Bond forms and carries traffic in both modes", "PASS"],
+      ["Bonding (aggregation)", "Capped by host PCIe x4 slot + marginal optics (not a NIC fault)", "LIMITED"],
+      ["Recommended mode", "balance-xor / 802.3ad (layer3+4); avoid balance-rr", "PASS"]
+    ]
+  },
+  "reproducibility": {
+    "iperf3": "iperf3 3.9", "latency_tools": "qperf, ping", "ethtool": "yes",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "5.15.0 (A -179 / B -94)",
+    "nic": "Broadcom BCM57414 NetXtreme-E dual-port 25GbE (bnxt_en)",
+    "optics": "SFP28 25G-SR fibre (Cisco-OEM), direct back-to-back (no switch)",
+    "tuning": "MTU 9000 (jumbo), RX/TX rings 2047, flow control ON, NUMA-pinned",
+    "campaign_window": "28 May 2026",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

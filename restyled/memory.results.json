@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "report_title": "DDR5 RDIMM Memory Validation Report",
+    "subtitle": "Two-Campaign Test - 256 GB (2 TB) + 128 GB (1 TB)",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.13.217",
+    "server_ip": "172.16.13.217",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T)",
+    "tier": "qualification",
+    "window": "27 May 2026 (A 05:15-06:26, B 07:33-08:36 UTC)",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-05-27",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "Two memory configurations were validated back-to-back on the same Tyrone MDA200A2N-224 server (172.16.13.217): Campaign A - 8x Samsung 256 GB DDR5-6400 RDIMMs (2 TB); Campaign B - 8x Samsung 128 GB DDR5-6400 RDIMMs (1 TB) after a physical swap. Each campaign ran a 30-minute stress-ng pattern-verify sweep followed by a 15-minute memtester burn that locked >=95% of RAM into physical memory.",
+    "All 16 modules across both campaigns are validated: zero ECC errors (0 CE / 0 UE across all 16 ranks), zero MCE events, and zero memtester failures across 90 minutes of combined testing.",
+    "Both SKUs are JEDEC-rated 6400 MT/s and both are platform-clamped to 6000 MT/s by the EPYC Turin 1DPC default. Aggregate STREAM bandwidth is essentially identical (~244 GB/s) in both campaigns - gated by the 4-of-12 channel population, not by module density. The capacity choice should be driven by working-set size, not bandwidth."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["ECC integrity (both campaigns)", "0 CE / 0 UE across 16 ranks", "0 MCE in 90 min; 16/16 ranks clean on mc0+mc1", "PASS"],
+      ["Stability burn", ">95% RAM locked, 0 failures", "stress-ng verify (52 patterns) + 32x memtester", "PASS"],
+      ["Memory bandwidth", "~244 GB/s aggregate (both)", "Per-channel ~30 GB/s - top of the 1DPC DDR5-6000 envelope", "PASS"],
+      ["DIMM speed", "6000 MT/s (stable)", "Platform-clamped from rated 6400 (EPYC Turin 1DPC default)", "PASS"],
+      ["Detection chain", "BMC + BIOS + kernel agree: 8 DIMMs", "Multi-bit ECC active; no slot/detection mismatch", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone Systems", "model": "MDA200A2N-224", "board": "MH12XM", "hostname": "172.16.13.217"},
+    "cpu": {"model": "2x AMD EPYC 9135", "sockets": 2, "cores_per_socket": 16, "threads": 64, "numa_nodes": 2},
+    "memory": {"total": "2 TB (A) / 1 TB (B)", "type": "DDR5 RDIMM (Samsung)",
+               "dimms_populated": "8 of 24 (4-of-12 channels: P0/P1 A,C,G,I)",
+               "configured_speed": "6000 MT/s", "rated_speed": "6400 MT/s",
+               "speed_status": "platform-clamped to 6000 (EPYC Turin 1DPC default)"},
+    "bios": {"version": "AMI ES312AMS.205T8 rev 5.35", "date": "2026-03-26"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-117-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 245.4, "per_socket_gbs": 113.9, "dimm_speed_mts": 6000, "rated_mts": 6400}
+  },
+  "spec_rows": [
+    {"metric": "STREAM aggregate (% of 12-ch potential)", "measured": 245.4, "rated": 480, "unit": "GB/s"},
+    {"metric": "Per-channel BW (% of rated 48)", "measured": 30.7, "rated": 48, "unit": "GB/s"},
+    {"metric": "Single-thread memcpy (% of ~22)", "measured": 20.57, "rated": 22, "unit": "GB/s"},
+    {"metric": "DIMM speed (% of rated 6400)", "measured": 6000, "rated": 6400, "unit": "MT/s"}
+  ],
+  "comparison": {
+    "servers": ["Campaign A (256 GB / 2 TB)", "Campaign B (128 GB / 1 TB)"],
+    "metrics": [
+      {"name": "STREAM aggregate (GB/s)", "a": 245.4, "b": 243.6, "fmt": "{:.1f}"},
+      {"name": "STREAM per-socket (GB/s)", "a": 113.9, "b": 114.3, "fmt": "{:.1f}"},
+      {"name": "memcpy NUMA-local (GB/s)", "a": 20.57, "b": 19.89, "fmt": "{:.2f}"},
+      {"name": "sysbench 1M write (GB/s)", "a": 17.2, "b": 16.6, "fmt": "{:.1f}"}
+    ],
+    "caption": "Same server, two DIMM populations swapped (256 GB vs 128 GB).",
+    "notes": "Aggregate bandwidth is identical (~244 GB/s) - gated by the 4-of-12 channel population, not module density. NUMA-remote penalty 1.69x (A) / 1.63x (B), within spec. Capacity is the only real differentiator between the two campaigns."
+  },
+  "sel_status": "BMC SEL: 0 memory-related events during the 45-minute window in each campaign. IPMI sees exactly 8 populated DIMM thermal sensors (35-39 C); all voltage rails 'ok'.",
+  "dmesg_status": "0 machine-check events across the 90-minute combined window. amd64_edac enumerated 16 ranks (8 UMCs x 2 CS); all CE=0 / UE=0 on mc0 + mc1 in both campaigns. No FAILURE/ERROR across 32 memtester logs per campaign.",
+  "findings": [
+    "All 16 modules tested are electrically and structurally healthy (8x 256 GB + 8x 128 GB): 90 minutes of combined testing produced zero ECC errors at controller, rank and DIMM level.",
+    "ECC is active in both configurations; amd64_edac enumerates 16 ranks per campaign, all clean; multi-bit ECC advertised in DMI Type 16. Kernel logged 0 machine-check events.",
+    "mlock() succeeded on all 32 memtester workers in both campaigns - the system pins >=95% of RAM at either capacity (1.92 TB or 960 GB) without page-reclaim or OOM.",
+    "Key insight: aggregate memory bandwidth is channel-population-limited (~244 GB/s at 4-of-12), not density-limited. Doubling capacity (A vs B) does not change bandwidth.",
+    "All three management layers (BMC, BIOS, kernel) agree on 8 populated DIMMs - no detection discrepancies, no BMC-vs-BIOS mismatch."
+  ],
+  "recommendations": [
+    "Populate more DIMM channels: today's 4-of-12 layout caps aggregate STREAM at ~244 GB/s; moving to 12-of-12 would scale toward ~500 GB/s with no module change - the highest-impact optimization regardless of module choice.",
+    "Choose capacity by working set: use Campaign A (2 TB) for >=1 TB working sets (large in-memory DB, big model serving); use Campaign B (1 TB) when cost matters and the workload fits - bandwidth is identical.",
+    "Run an 8-hour soak in the final configuration before shipping to production - raises the bar from infant-mortality clean to burn-in qualified.",
+    "Install rasdaemon on the deployed system for continuous per-DIMM error history."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["8x 256 GB DDR5 (Campaign A, 2 TB)", "Validated: 0 ECC, 0 MCE, >95% locked; ~245 GB/s aggregate", "PASS"],
+      ["8x 128 GB DDR5 (Campaign B, 1 TB)", "Validated: identical stability and bandwidth (~244 GB/s)", "PASS"],
+      ["Bandwidth optimization", "Populate 12-of-12 channels to scale toward ~500 GB/s", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 32 --verify (52 patterns, 30 min)",
+    "memtester": "memtester 4.5.1 (32 workers, 15 min, 18-algo suite)",
+    "bandwidth": "stress-ng --stream; mbw; numactl variants",
+    "latency": "sysbench memory (4K, 16 threads, local + remote)",
+    "edac": "amd64_edac (mc0 + mc1, multi-bit ECC)",
+    "bios": "AMI ES312AMS.205T8 rev 5.35 (2026-03-26)",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-117-generic",
+    "campaign_window": "27 May 2026 (A 05:15-06:26, B 07:33-08:36 UTC)",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

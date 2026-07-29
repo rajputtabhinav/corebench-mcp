@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "report_title": "3-Hour DDR5 Memory Validation Report",
+    "subtitle": "12x Samsung 96 GB DDR5-6400 RDIMM (1.15 TB)",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.13.217",
+    "server_ip": "172.16.13.217",
+    "platform": "Tyrone MDA200A2N-224 / 2x AMD EPYC 9135 (32C/64T)",
+    "tier": "qualification",
+    "window": "01 Jun 2026 06:05-08:38 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-01",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "3-hour memory validation of 12x Samsung 96 GB DDR5-6400 Registered ECC DIMMs (1.15 TB total) in server 172.16.13.217 (Tyrone MDA200A2N-224, dual AMD EPYC 9135). Two back-to-back phases: a 2-hour stress-ng --vm-method all --verify pattern sweep across an 832 GB rolling working set, and a 30-minute memtester burn that locked 1088 GB (96.0% of RAM) into physical memory.",
+    "All 12 DIMMs were detected by BMC, BIOS and kernel, EDAC remained clean throughout, and zero memtester failures were recorded - zero ECC errors across all 24 ranks and zero machine-check events in the 2h33m window.",
+    "Aggregate STREAM bandwidth of 443 GB/s and NUMA behaviour are at the top of the EPYC 9135 / DDR5-6000 envelope for this 12-of-24 channel layout. The modules are healthy and the server is fit for production memory-bound workloads."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["DIMM detection & speed", "12/12 DIMMs, 6000 MT/s", "BMC/BIOS/kernel agree; rated 6400, EPYC 1DPC clamp", "PASS"],
+      ["Stability (2h verify + 30m burn)", "0 errors; 1088 GB locked (96%)", "stress-ng 52 patterns + memtester 18-algo suite", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE across 24 ranks", "0 MCE in 2h33m; 0 new BMC SEL entries", "PASS"],
+      ["Memory bandwidth", "443 GB/s aggregate, 169 GB/s/socket", "Top of the EPYC 9135 / DDR5-6000 12-of-24 envelope", "PASS"],
+      ["Channel scaling", "1.81x vs prior 4-of-12 layout", "Per-channel ~37 GB/s (upper band of 48 ceiling)", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone Systems", "model": "MDA200A2N-224", "board": "MH12XM", "hostname": "172.16.13.217"},
+    "cpu": {"model": "2x AMD EPYC 9135", "sockets": 2, "cores_per_socket": 16, "threads": 64, "numa_nodes": 2},
+    "memory": {"total": "1.15 TB (12x 96 GB)", "type": "DDR5 RDIMM (Samsung MDRRWM4QDBC2-3E000)",
+               "dimms_populated": "12 of 24 (P0/P1 channels A,C,E,G,I,K)",
+               "configured_speed": "6000 MT/s", "rated_speed": "6400 MT/s",
+               "speed_status": "clamped to 6000 (EPYC Turin 1DPC)"},
+    "bios": {"version": "AMI ES312AMS.205T8 rev 5.35", "date": "2026-03-26"},
+    "bmc": {"firmware": "1.08"},
+    "kernel": {"distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-117-generic"}
+  },
+  "benchmarks": {
+    "memory": {"stream_triad_gbs": 443.3, "per_socket_gbs": 168.6, "dimm_speed_mts": 6000, "rated_mts": 6400}
+  },
+  "spec_rows": [
+    {"metric": "STREAM aggregate (% of 24-ch potential)", "measured": 443.3, "rated": 565, "unit": "GB/s"},
+    {"metric": "Per-channel BW (% of rated 48)", "measured": 37, "rated": 48, "unit": "GB/s"},
+    {"metric": "Single-thread memcpy (% of ~22)", "measured": 20.77, "rated": 22, "unit": "GB/s"},
+    {"metric": "DIMM speed (% of rated 6400)", "measured": 6000, "rated": 6400, "unit": "MT/s"}
+  ],
+  "comparison": {
+    "servers": ["4-of-12 (8x 256 GB)", "12-of-24 (12x 96 GB)"],
+    "metrics": [
+      {"name": "STREAM aggregate (GB/s)", "a": 245.4, "b": 443.3, "fmt": "{:.1f}"},
+      {"name": "Per-socket STREAM (GB/s)", "a": 113.9, "b": 168.6, "fmt": "{:.1f}"},
+      {"name": "Per-channel BW (GB/s)", "a": 31.0, "b": 37.0, "fmt": "{:.1f}"}
+    ],
+    "caption": "Channel scaling on the same EPYC 9135 server: prior 4-of-12 layout vs this 12-of-24 layout.",
+    "notes": "Aggregate STREAM scales 1.81x from a 1.5x channel-count increase (extra ~20% from better interleave). Filling all 24 channels would push aggregate toward ~580 GB/s. Both layouts run at the EPYC 1DPC-clamped 6000 MT/s."
+  },
+  "sel_status": "BMC SEL: 0 new entries during the campaign (last SEL add 05:43, pre-test).",
+  "dmesg_status": "0 machine-check events in the 2h33m window. amd64_edac enumerated 24 ranks (2 ranks x 12 DIMMs); all CE=0 / UE=0 on mc0 + mc1, baseline and post-test.",
+  "findings": [
+    "All 12 Samsung 96 GB DDR5-6400 modules are electrically and structurally healthy: 2 hours of write-and-verify across 52 stress-ng patterns plus 30 minutes at 96.0% RAM residency (1.09 TB pinned) produced zero ECC errors at controller, rank and DIMM level.",
+    "BIOS identifies every module's SPD correctly (96 GB / DDR5-6400 rated / Samsung); configured at 6000 MT/s by the EPYC Turin 1DPC platform clamp. ECC active; amd64_edac enumerates 24 ranks, all clean.",
+    "Kernel logged 0 machine-check events during the 2h33m window; BMC SEL added 0 new entries. mlock() succeeded on all 64 memtester workers (96% of RAM pinned without reclaim/OOM/swap).",
+    "Bandwidth scales linearly with channel population: 12-of-24 yields 443 GB/s, 1.81x the earlier 4-of-12 configuration, near the upper bound of the 1DPC DDR5-6000 envelope."
+  ],
+  "recommendations": [
+    "Modules cleared for production: no DIMM action required; the 1.15 TB configuration is qualified for memory-bound workloads (in-memory DBs, large caches, AI inference, virtualization).",
+    "Optional 8-hour soak with the same Phase 2 config to convert from infant-mortality clean to burn-in qualified before shipping.",
+    "Populate the remaining 12 channels (full 24-of-24) to push aggregate STREAM from 443 GB/s toward ~580 GB/s - pure bandwidth headroom.",
+    "Enable BIOS patrol scrub (RAS) to catch single-bit errors during idle, and install rasdaemon for continuous per-DIMM error history."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["12x 96 GB DDR5-6400 (1.15 TB)", "Validated: 0 ECC, 0 MCE, 96% burn; 443 GB/s aggregate", "PASS"],
+      ["Channel scaling", "12-of-24 = 1.81x the 4-of-12 layout; top of the 1DPC envelope", "PASS"],
+      ["Bandwidth headroom", "Populate 24-of-24 to reach ~580 GB/s", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --vm-method all --verify (2 h, 832 GB working set)",
+    "memtester": "64x memtester 17G (30 min, 96% residency, 18-algo suite)",
+    "bandwidth": "stress-ng --stream 64; mbw memcpy (local+remote); sysbench memory",
+    "edac": "amd64_edac (mc0 + mc1, multi-bit ECC)",
+    "bios": "AMI ES312AMS.205T8 rev 5.35 (2026-03-26)", "bmc_firmware": "1.08",
+    "distro": "Ubuntu 22.04.4 LTS", "kernel": "6.8.0-117-generic",
+    "campaign_window": "01 Jun 2026 06:05-08:38 UTC",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "report_title": "3-Hour Memory & HPL Validation Report",
+    "subtitle": "12x Samsung 96 GB DDR5-6400 (1.15 TB) + HPL FP64 - Tyrone MDI300",
+    "company": "Netweb Technologies India Limited",
+    "classification": "",
+    "hostname": "172.16.11.41",
+    "server_ip": "172.16.11.41",
+    "platform": "Tyrone MDI300 / 2x Intel Xeon 6730P (64C/128T, Granite Rapids)",
+    "tier": "qualification",
+    "window": "09 Jun 2026 05:17-08:04 UTC",
+    "prepared_for": "Netweb Technologies India Limited",
+    "date": "2026-06-09",
+    "status": "PASS"
+  },
+  "executive_summary": [
+    "3-hour memory validation of 12x Samsung 96 GB DDR5-6400 Registered ECC DIMMs (1.15 TB total) in server 172.16.11.41 (Tyrone MDI300, dual Intel Xeon 6730P Granite Rapids), plus an HPL (High-Performance Linpack) FP64 compute campaign. Two memory phases: a 2-hour stress-ng --vm-method all --verify sweep across an 832 GB working set, and a 30-minute memtester burn locking 1088 GB (96.0% of RAM).",
+    "All 12 DIMMs were detected by BMC, BIOS and kernel; modules ran at their full rated 6400 MT/s (no platform downclock - Intel Granite Rapids natively supports 1DPC DDR5-6400); EDAC stayed clean; zero memtester failures and zero machine-check events. The CPU reached full 3.8 GHz max turbo (3792 MHz) - healthy, unlike the sibling .19 unit firmware-locked at 500 MHz.",
+    "HPL sustained 5.11 TFLOPS FP64 (N=340000, ~80% RAM, 8x8 grid, 64 MPI ranks) = 69% of the ~7.4 TFLOPS theoretical peak (the practical netlib HPL ceiling). A near-full-memory run (N=370000, 93% RAM, 1.10 TiB matrix) PASSED at 4.55 TFLOPS with no OOM. The server is validated for production memory- and compute-bound workloads."
+  ],
+  "scorecard": {
+    "header": ["Subsystem", "Result", "Detail", "Verdict"],
+    "rows": [
+      ["Compute (HPL FP64)", "5.11 TFLOPS sustained", "69% of ~7.4 TFLOPS peak; SNC2-on, Perf+Turbo", "PASS"],
+      ["DIMM detection & speed", "12/12 DIMMs, full 6400 MT/s", "BMC/BIOS/kernel agree; no platform downclock", "PASS"],
+      ["Stability (2h verify + 30m burn)", "0 errors; 1088 GB locked (96%)", "stress-ng 52 patterns + memtester 18-algo suite", "PASS"],
+      ["ECC integrity", "0 CE / 0 UE (16 controllers, 12 DIMMs)", "0 MCE in 2h47m; 0 new BMC SEL entries", "PASS"],
+      ["CPU frequency", "3792 MHz under load (full turbo)", "No throttle - unlike sibling .19 (locked at 500 MHz)", "PASS"],
+      ["Memory bandwidth", "417 GB/s aggregate", "In range for 12-of-16 ch DDR5-6400 (SNC2, 4-NUMA)", "PASS"]
+    ]
+  },
+  "hardware": {
+    "system": {"vendor": "Tyrone (Netweb)", "model": "MDI300", "hostname": "172.16.11.41"},
+    "cpu": {"model": "2x Intel Xeon 6730P (Granite Rapids)", "sockets": 2, "cores_per_socket": 32, "threads": 128,
+            "base_ghz": 2.5, "boost_ghz": 3.8, "numa_nodes": 4, "isa": "AVX-512, AMX, BF16 (L3 576 MiB; SNC2)"},
+    "memory": {"total": "1.15 TB (12x 96 GB)", "type": "DDR5 RDIMM (Samsung MDRRWM4QDBC2-3E000)",
+               "dimms_populated": "12 of 32 (1 DPC on 6-of-8 channels: A,B,C,E,F,G)",
+               "configured_speed": "6400 MT/s", "rated_speed": "6400 MT/s",
+               "speed_status": "full rated speed (Intel 1DPC, no clamp)"},
+    "kernel": {"distro": "Ubuntu (Linux)", "kernel": "6.8.0-124-generic"}
+  },
+  "benchmarks": {
+    "cpu": {"hpl_tflops": 5.11, "hpl_peak_tflops": 7.4, "hpl_efficiency_pct": 69,
+            "avx512": "yes", "amx": "yes", "soak_hours": 0, "throttle_events": 0},
+    "memory": {"stream_triad_gbs": 417.4, "dimm_speed_mts": 6400, "rated_mts": 6400}
+  },
+  "spec_rows": [
+    {"metric": "STREAM aggregate (% of 16-ch potential)", "measured": 417.4, "rated": 510, "unit": "GB/s"},
+    {"metric": "DIMM speed (% of rated 6400)", "measured": 6400, "rated": 6400, "unit": "MT/s"},
+    {"metric": "CPU turbo under load (% of rated 3800)", "measured": 3792, "rated": 3800, "unit": "MHz"},
+    {"metric": "HPL FP64 (% of theoretical peak)", "measured": 5.11, "rated": 7.4, "unit": "TFLOPS"}
+  ],
+  "comparison": {
+    "servers": ["This .41 (Xeon 6730P)", "Reference .217 (EPYC 9135)"],
+    "metrics": [
+      {"name": "DIMM configured (MT/s)", "a": 6400, "b": 6000, "fmt": "{:.0f}"},
+      {"name": "STREAM aggregate (GB/s)", "a": 417.4, "b": 443.3, "fmt": "{:.1f}"},
+      {"name": "1-thread memcpy (GB/s)", "a": 6.34, "b": 20.77, "fmt": "{:.2f}"},
+      {"name": "NUMA-remote ratio (x)", "a": 2.57, "b": 1.67, "fmt": "{:.2f}"}
+    ],
+    "caption": "MDI300 (Xeon 6730P, SNC2) vs the EPYC 9135 reference - both 1.15 TB DDR5-6400, both pass.",
+    "notes": "Intel runs the modules at full rated 6400 MT/s (no clamp); AMD's EPYC Turin 1DPC clamps to 6000. Aggregate STREAM is comparable (~417 vs ~443 GB/s). EPYC has stronger single-thread bandwidth (Zen 5); Intel SNC2 (4 NUMA nodes) shows a larger NUMA-remote penalty by design. This .41 MDI300 is healthy at full 3.8 GHz turbo - unlike the sibling .19 unit firmware-locked at 500 MHz."
+  },
+  "sel_status": "BMC SEL: 0 new entries during the campaign (last entry pre-test).",
+  "dmesg_status": "0 machine-check events in the 2h47m window. Intel EDAC enumerated 16 memory controllers; per-DIMM counters all CE=0 / UE=0. turbostat shows cores at 3792 MHz (full max turbo) under load - no thermal or firmware throttle.",
+  "findings": [
+    "All 12 Samsung 96 GB DDR5-6400 modules are electrically and structurally healthy: 2 hours of write-and-verify across 52 stress-ng patterns plus 30 minutes at 96.0% RAM residency (1.09 TB pinned) produced zero ECC errors at controller and DIMM level.",
+    "BIOS trains every module at full rated 6400 MT/s - no platform downclock on this Granite Rapids board. Kernel logged 0 machine-check events; BMC SEL added 0 new entries; mlock() succeeded on all 64 memtester workers (96% of RAM pinned without reclaim/OOM/swap).",
+    "CPU runs at full 3792 MHz under load (matching the 3800 MHz max turbo) - no thermal or firmware throttle, unlike the sibling MDI300 at 172.16.13.19 which was locked at 500 MHz. Bandwidth and HPL here are therefore representative.",
+    "Compute (HPL FP64): 5.11 TFLOPS sustained (N=340000, ~80% RAM, NB=384, 8x8 grid, 64 MPI ranks, 85 min) = 69% of the ~7.4 TFLOPS theoretical peak - the practical ceiling for netlib HPL 2.3 + MKL. BIOS Performance + Turbo lifted the large-N result 4.92 -> 5.11 TFLOPS (+4%); SNC2-on is ~10% faster than SNC-off for this rank-per-core layout.",
+    "Max-memory HPL: N=370000 (a 1.10 TiB matrix, 93% RAM) PASSED in 2h04m at 4.55 TFLOPS with no OOM or swap - TOP500-style near-full-memory stability. ~80% RAM is the HPL sweet spot; N>=400000 would require the 2 TB (8x 256 GB) DIMM configuration."
+  ],
+  "recommendations": [
+    "Modules cleared for production: no DIMM action required; the 1.15 TB configuration is qualified for memory- and compute-bound workloads (in-memory DBs, AI inference, HPC, virtualization).",
+    "For higher HPL efficiency (~5.9-6.6 TFLOPS, 80-90%), use Intel's oneMKL LINPACK binary instead of netlib HPL (the binary is the limiter at 69%); keep SNC2 enabled for production and benchmarking.",
+    "Populate the remaining 4 channels per socket (full 16-of-16) to push aggregate STREAM beyond ~500 GB/s and unlock the full Granite Rapids memory subsystem.",
+    "Optional 8-hour soak; enable BIOS patrol scrub (RAS) and install rasdaemon for continuous per-DIMM error history.",
+    "Use this healthy .41 MDI300 as the reference to diagnose the .19 unit's 500 MHz frequency lock - same SKU, so a BIOS/microcode diff should identify the fix."
+  ],
+  "conclusion": {
+    "header": ["Area", "Outcome", "Verdict"],
+    "rows": [
+      ["12x 96 GB DDR5-6400 (1.15 TB)", "Validated: 0 ECC, 0 MCE, 96% burn; full 6400 MT/s; 417 GB/s aggregate", "PASS"],
+      ["Compute (HPL FP64)", "5.11 TFLOPS sustained (69% of peak); near-full-memory stable to 93% RAM", "PASS"],
+      ["Platform health", "CPU at full 3.8 GHz turbo; no clamp/throttle (vs sibling .19 lock)", "PASS"],
+      ["Bandwidth headroom", "Populate 16-of-16 channels to exceed ~500 GB/s", "LIMITED"]
+    ]
+  },
+  "reproducibility": {
+    "stress_ng": "stress-ng --vm 64 --vm-method all --verify (2 h, 832 GB working set)",
+    "memtester": "64x memtester 17G (30 min, 96% residency, 18-algo suite)",
+    "hpl": "netlib HPL 2.3 + Intel oneAPI MKL 2024.0 (AVX-512/AMX BLAS), OpenMPI 64 ranks, 8x8 grid, NB=384",
+    "bandwidth": "stress-ng --stream 64; mbw memcpy (local + SNC2-remote); sysbench memory",
+    "cpu_freq": "turbostat Bzy_MHz (verified 3792 MHz under load)",
+    "edac": "Intel EDAC, 16 memory controllers, multi-bit ECC",
+    "distro": "Ubuntu (Linux)", "kernel": "6.8.0-124-generic",
+    "campaign_window": "09 Jun 2026 05:17-08:04 UTC",
+    "note": "Reconstructed from the validated source report into the CoreBench results.json contract."
+  }
+}
